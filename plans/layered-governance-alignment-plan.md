@@ -249,6 +249,10 @@ P0 决策闸口：
 
 ### P3a：代码分层违规 Inventory
 
+当前产出：
+
+- [layered-governance-p3a-inventory.md](./layered-governance-p3a-inventory.md)
+
 目标：按对齐后的新项目规则，先盘点旧项目实际代码里的分层违规，不在本阶段扩大修复范围。
 
 重点检查：
