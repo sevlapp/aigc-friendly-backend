@@ -90,7 +90,7 @@ export class AccountService {
   ): Promise<void> {
     const account = await this.accountRepository.findOne({
       where: { id: accountId },
-      select: ['recentLoginHistory'],
+      select: { recentLoginHistory: true },
     });
 
     const newHistoryItem: LoginHistoryItemModel = { ip: ip || '', timestamp, audience };

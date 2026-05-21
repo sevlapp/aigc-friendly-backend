@@ -352,7 +352,7 @@ export class AccountQueryService {
     const repository = this.getUserInfoRepository(transactionContext);
     return await repository.findOne({
       where: { accountId },
-      relations: ['account'],
+      relations: { account: true },
     });
   }
 

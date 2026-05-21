@@ -424,7 +424,7 @@ describe('AI GraphQL 队列入口与 Worker 联动（e2e）', () => {
   let adminToken: string;
   let adminAccountId: number;
   let adminActiveRole: string;
-  let staffSecondaryToken: string;
+  let guestPrimaryToken: string;
   let aiWorkerMock: MockAiWorkerService;
 
   beforeAll(async () => {
@@ -453,7 +453,7 @@ describe('AI GraphQL 队列入口与 Worker 联动（e2e）', () => {
     await cleanupTestAccounts(dataSource);
     await seedTestAccounts({
       dataSource,
-      includeKeys: ['staffPrimary', 'admin', 'staffSecondary'],
+      includeKeys: ['staffPrimary', 'admin', 'guestPrimary'],
     });
     staffPrimaryToken = await login({
       app: apiApp,
@@ -486,10 +486,10 @@ describe('AI GraphQL 队列入口与 Worker 联动（e2e）', () => {
     if (!adminActiveRole) {
       throw new Error('无法从 admin token 获取 activeRole');
     }
-    staffSecondaryToken = await login({
+    guestPrimaryToken = await login({
       app: apiApp,
-      loginName: testAccountsConfig.staffSecondary.loginName,
-      loginPassword: testAccountsConfig.staffSecondary.loginPassword,
+      loginName: testAccountsConfig.guestPrimary.loginName,
+      loginPassword: testAccountsConfig.guestPrimary.loginPassword,
       type: LoginTypeEnum.PASSWORD,
     });
   }, 60000);
@@ -1017,7 +1017,7 @@ describe('AI GraphQL 队列入口与 Worker 联动（e2e）', () => {
     it('非 staff 角色调用 queueAiGenerate 应返回权限错误', async () => {
       const response = await queueAiGenerate({
         app: apiApp,
-        token: staffSecondaryToken,
+        token: guestPrimaryToken,
         model: 'gpt-4o-mini',
         prompt: 'forbidden role call',
       });
@@ -1056,7 +1056,7 @@ describe('AI GraphQL 队列入口与 Worker 联动（e2e）', () => {
     it('非 staff 角色调用 queueAiEmbed 应返回权限错误', async () => {
       const response = await queueAiEmbed({
         app: apiApp,
-        token: staffSecondaryToken,
+        token: guestPrimaryToken,
         model: 'text-embedding-3-small',
         text: 'forbidden role embed call',
       });
@@ -1359,7 +1359,7 @@ describe('AI GraphQL 队列入口与 Worker 联动（e2e）', () => {
     it('越权访问调试查询应返回权限错误', async () => {
       const response = await queryDebugByTraceId({
         app: apiApp,
-        token: staffSecondaryToken,
+        token: guestPrimaryToken,
         traceId: 'forbidden-trace',
       });
       const errors = (response.body as { errors?: Array<{ message?: string }> }).errors ?? [];

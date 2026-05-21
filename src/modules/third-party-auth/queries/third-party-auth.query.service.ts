@@ -19,15 +19,15 @@ export class ThirdPartyAuthQueryService {
   }): Promise<ThirdPartyAuthView | null> {
     const record = await this.thirdPartyAuthRepository.findOne({
       where: { provider: params.provider, providerUserId: params.providerUserId },
-      select: [
-        'id',
-        'accountId',
-        'provider',
-        'providerUserId',
-        'unionId',
-        'createdAt',
-        'updatedAt',
-      ],
+      select: {
+        id: true,
+        accountId: true,
+        provider: true,
+        providerUserId: true,
+        unionId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
     return record ? this.toView(record) : null;
   }
@@ -35,15 +35,15 @@ export class ThirdPartyAuthQueryService {
   async getThirdPartyAuths(accountId: number): Promise<ThirdPartyAuthView[]> {
     const records = await this.thirdPartyAuthRepository.find({
       where: { accountId },
-      select: [
-        'id',
-        'accountId',
-        'provider',
-        'providerUserId',
-        'unionId',
-        'createdAt',
-        'updatedAt',
-      ],
+      select: {
+        id: true,
+        accountId: true,
+        provider: true,
+        providerUserId: true,
+        unionId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
     return records.map((record) => ({
       id: record.id,
@@ -62,15 +62,15 @@ export class ThirdPartyAuthQueryService {
   ): Promise<ThirdPartyAuthView | null> {
     const record = await this.thirdPartyAuthRepository.findOne({
       where: { accountId, provider },
-      select: [
-        'id',
-        'accountId',
-        'provider',
-        'providerUserId',
-        'unionId',
-        'createdAt',
-        'updatedAt',
-      ],
+      select: {
+        id: true,
+        accountId: true,
+        provider: true,
+        providerUserId: true,
+        unionId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
     return record ? this.toView(record) : null;
   }

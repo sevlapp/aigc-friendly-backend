@@ -102,7 +102,7 @@ const jestConfig = {
   testPathIgnorePatterns: ['/node_modules/', '\\.skip\\.ts$', '/__.*\\.skip__/', '/.*\\.skip/'],
 
   transform: {
-    '^.+\\.(t|j)s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.json' }],
+    '^.+\\.(t|j)s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },
 
   setupFiles: ['tsconfig-paths/register'],

@@ -6,8 +6,9 @@ import databaseConfig from '@src/infrastructure/config/database.config';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as path from 'path';
-import { DataSource } from 'typeorm';
-import { MysqlConnectionOptions } from 'typeorm/driver/mysql/MysqlConnectionOptions';
+import { DataSource, DataSourceOptions } from 'typeorm';
+
+type MysqlDataSourceOptions = Extract<DataSourceOptions, { type: 'mysql' | 'mariadb' }>;
 
 interface MysqlConnectionConfig {
   type: 'mysql';
@@ -160,7 +161,7 @@ function escapeIdentifier(identifier: string): string {
 /**
  * 构建用于管理库操作（创建/删除数据库）的连接配置。
  */
-function buildAdminDataSourceOptions(config: MysqlConnectionConfig): MysqlConnectionOptions {
+function buildAdminDataSourceOptions(config: MysqlConnectionConfig): MysqlDataSourceOptions {
   return {
     type: 'mysql',
     host: config.host,
@@ -183,7 +184,7 @@ function buildAdminDataSourceOptions(config: MysqlConnectionConfig): MysqlConnec
 function buildMigrationDataSourceOptions(
   config: MysqlConnectionConfig,
   databaseName: string,
-): MysqlConnectionOptions {
+): MysqlDataSourceOptions {
   return {
     ...buildAdminDataSourceOptions(config),
     database: databaseName,

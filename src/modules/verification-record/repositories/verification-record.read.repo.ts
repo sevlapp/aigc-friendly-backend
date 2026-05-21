@@ -130,7 +130,7 @@ export class VerificationRecordReadRepository {
     const repository = this.getRepository(params.transactionContext);
     const record = await repository.findOne({
       where: { id: params.recordId },
-      select: ['id', 'targetAccountId'],
+      select: { id: true, targetAccountId: true },
     });
     return record?.targetAccountId ?? null;
   }

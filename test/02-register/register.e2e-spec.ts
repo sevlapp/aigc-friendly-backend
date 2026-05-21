@@ -204,7 +204,7 @@ describe('Register (e2e)', () => {
       if (whereConditions.length > 0) {
         const accounts = await accountRepository.find({
           where: whereConditions,
-          select: ['id'],
+          select: { id: true },
         });
 
         const accountIds = accounts.map((account) => account.id);
@@ -215,7 +215,7 @@ describe('Register (e2e)', () => {
           if (nicknames.length > 0) {
             const userInfosByNickname = await userInfoRepository.find({
               where: { nickname: In(nicknames) },
-              select: ['accountId'],
+              select: { accountId: true },
             });
             userInfosToDelete.push(...userInfosByNickname.map((ui) => ui.accountId));
           }
