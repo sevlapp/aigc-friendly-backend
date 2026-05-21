@@ -65,11 +65,23 @@ performs an automatic `--fix` pass.
   Blocks `src/types/**` from importing `src/core/**`.
   Types is the stable shared contract layer and must not depend on core implementation semantics.
 
+- `local-architecture/no-adapter-decorators-on-entities`
+  Blocks ORM Entity files from importing adapter / GraphQL / HTTP / Swagger / validation /
+  transformer packages or using those protocol decorators.
+  Entity files must remain persistence-only and must not become GraphQL DTOs or adapter shapes.
+
+- `local-architecture/no-graphql-schema-registration-outside-schema`
+  Blocks `registerEnumType` / `registerScalarType` imports or calls outside
+  `src/adapters/api/graphql/schema/`.
+  GraphQL enum and scalar registration must stay centralized in the schema registry.
+
 - `no-restricted-imports`
   Blocks direct `src/types/**`, `@src/types/**`, and `**/src/types/**` imports.
   Shared global types must use `@app-types/*`.
   In `src/core/**`, it also blocks framework/runtime imports such as `@nestjs/*`, `graphql`,
-  and `typeorm`.
+  `typeorm`, `express`, `class-validator`, and `class-transformer`.
+  In `src/types/**`, it blocks framework/runtime/protocol imports such as `@nestjs/*`,
+  `graphql`, `typeorm`, `class-validator`, and `class-transformer`.
 
 - `@typescript-eslint/no-explicit-any`
   Blocks `any` in source code covered by the main ESLint config.
@@ -90,7 +102,8 @@ performs an automatic `--fix` pass.
 These rules are documented review rules in the current project unless and until matching lint rules are added:
 
 - Aggregate child-entity direct writes outside the aggregate root entry.
-- ORM Entity purity, including accidental GraphQL / HTTP / Swagger / adapter decorators.
+- ORM Entity purity beyond adapter decorator/import checks, including accidental Entity output leaks
+  from adapters, usecases, QueryServices, or module services.
 - QueryService depending on mixed read/write services.
 - Infrastructure runtime contract naming drift such as BullMQ payload files using layer boundary
   `*.contract.ts` naming.

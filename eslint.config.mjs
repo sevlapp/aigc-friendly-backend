@@ -8,7 +8,9 @@ import path from 'node:path';
 import tseslint from 'typescript-eslint';
 
 const PROJECT_ROOT = import.meta.dirname;
+const ADAPTERS_ROOT = path.join(PROJECT_ROOT, 'src', 'adapters');
 const CORE_ROOT = path.join(PROJECT_ROOT, 'src', 'core');
+const GRAPHQL_SCHEMA_ROOT = path.join(PROJECT_ROOT, 'src', 'adapters', 'api', 'graphql', 'schema');
 const INFRASTRUCTURE_ROOT = path.join(PROJECT_ROOT, 'src', 'infrastructure');
 const MODULES_ROOT = path.join(PROJECT_ROOT, 'src', 'modules');
 const TYPES_ROOT = path.join(PROJECT_ROOT, 'src', 'types');
@@ -23,6 +25,63 @@ const MODULES_CONTRACTS_ELEMENT_PATTERNS = [
 ];
 // Keep this in sync with MODULES_CONTRACTS_ELEMENT_PATTERNS.
 const MODULE_BOUNDARY_CONTRACT_FILE_PATH_PATTERN = /(^|[/\\])[^/\\]+\.contract(?:\.ts)?$/;
+const ENTITY_FILE_PATH_PATTERN = /(^|[/\\])[^/\\]+\.entity\.ts$/;
+const ENTITY_FORBIDDEN_IMPORT_SOURCES = new Set([
+  '@nestjs/common',
+  '@nestjs/graphql',
+  '@nestjs/swagger',
+  'class-transformer',
+  'class-validator',
+]);
+const ENTITY_FORBIDDEN_DECORATOR_NAMES = new Set([
+  'ApiHideProperty',
+  'ApiOperation',
+  'ApiProperty',
+  'ApiPropertyOptional',
+  'ApiResponse',
+  'ApiTags',
+  'ArgsType',
+  'Catch',
+  'Controller',
+  'Delete',
+  'Exclude',
+  'Expose',
+  'Field',
+  'Get',
+  'HideField',
+  'InputType',
+  'InterfaceType',
+  'IsArray',
+  'IsBoolean',
+  'IsDate',
+  'IsEmail',
+  'IsEnum',
+  'IsInt',
+  'IsNumber',
+  'IsOptional',
+  'IsString',
+  'IsUrl',
+  'IsUUID',
+  'Length',
+  'Matches',
+  'MaxLength',
+  'MinLength',
+  'Mutation',
+  'ObjectType',
+  'Patch',
+  'Post',
+  'Put',
+  'Query',
+  'Resolver',
+  'Subscription',
+  'Transform',
+  'Type',
+  'UseGuards',
+  'UseInterceptors',
+  'UsePipes',
+  'ValidateNested',
+]);
+const GRAPHQL_SCHEMA_REGISTRATION_FUNCTION_NAMES = new Set(['registerEnumType', 'registerScalarType']);
 const TRANSACTION_MANAGER_ORM_METHODS = new Set([
   'createQueryBuilder',
   'delete',
@@ -52,6 +111,14 @@ function isBoundaryPortFilePath(filePath) {
 }
 
 /**
+ * @param {string} filePath
+ * @returns {boolean}
+ */
+function isEntityFilePath(filePath) {
+  return ENTITY_FILE_PATH_PATTERN.test(filePath);
+}
+
+/**
  * @param {import('estree').Node} node
  * @returns {string | null}
  */
@@ -68,6 +135,34 @@ function getStaticPropertyName(node) {
     typeof node.property.value === 'string'
   ) {
     return node.property.value;
+  }
+  return null;
+}
+
+/**
+ * @param {import('@typescript-eslint/types').TSESTree.Decorator} node
+ * @returns {string | null}
+ */
+function getDecoratorName(node) {
+  const expression = node.expression;
+  if (expression.type === 'Identifier') {
+    return expression.name;
+  }
+  if (expression.type === 'CallExpression') {
+    const callee = expression.callee;
+    if (callee.type === 'Identifier') {
+      return callee.name;
+    }
+    if (callee.type === 'MemberExpression') {
+      return getStaticPropertyName(
+        /** @type {import('estree').Node} */ (/** @type {unknown} */ (callee)),
+      );
+    }
+  }
+  if (expression.type === 'MemberExpression') {
+    return getStaticPropertyName(
+      /** @type {import('estree').Node} */ (/** @type {unknown} */ (expression)),
+    );
   }
   return null;
 }
@@ -579,6 +674,145 @@ const localArchitecturePlugin = {
                   'Infrastructure 层禁止依赖 modules 实现；仅允许依赖 module-owned boundary contract。当前 import: "{{specifier}}"',
                 data: { specifier },
               });
+            });
+          },
+        };
+      },
+    },
+    'no-adapter-decorators-on-entities': {
+      meta: {
+        type: /** @type {const} */ ('problem'),
+        docs: {
+          description: 'disallow adapter/protocol decorators and imports in ORM entity files',
+        },
+        schema: [],
+      },
+      /** @param {import('eslint').Rule.RuleContext} context */
+      create(context) {
+        if (!isEntityFilePath(context.filename)) {
+          return {};
+        }
+
+        /**
+         * @param {import('estree').Node} node
+         * @param {string} source
+         * @returns {void}
+         */
+        function reportImportIfNeeded(node, source) {
+          if (
+            !ENTITY_FORBIDDEN_IMPORT_SOURCES.has(source) &&
+            !source.startsWith('@adapters/') &&
+            !source.startsWith('@src/adapters/') &&
+            !source.startsWith('src/adapters/')
+          ) {
+            return;
+          }
+          context.report({
+            node,
+            message:
+              'ORM Entity 禁止 import adapter / GraphQL / HTTP / Swagger / validation / transformer 依赖。当前 import: "{{source}}"',
+            data: { source },
+          });
+        }
+
+        return {
+          /** @param {import('@typescript-eslint/types').TSESTree.ImportDeclaration} node */
+          ImportDeclaration(node) {
+            const source = typeof node.source.value === 'string' ? node.source.value : null;
+            if (!source) {
+              return;
+            }
+            reportImportIfNeeded(
+              /** @type {import('estree').Node} */ (/** @type {unknown} */ (node)),
+              source,
+            );
+            checkStaticImportLikeNode(
+              context,
+              /** @type {import('estree').Node & { source?: { value?: unknown } }} */ (
+                /** @type {unknown} */ (node)
+              ),
+              (_specifier, targetPath) => {
+                if (!isPathInside(targetPath, ADAPTERS_ROOT)) {
+                  return;
+                }
+                context.report({
+                  node: /** @type {import('estree').Node} */ (/** @type {unknown} */ (node)),
+                  message:
+                    'ORM Entity 禁止依赖 adapters 层文件；Entity 只表达持久化结构。',
+                });
+              },
+            );
+          },
+          /** @param {import('@typescript-eslint/types').TSESTree.Decorator} node */
+          Decorator(node) {
+            const decoratorName = getDecoratorName(node);
+            if (!decoratorName || !ENTITY_FORBIDDEN_DECORATOR_NAMES.has(decoratorName)) {
+              return;
+            }
+            context.report({
+              node: /** @type {import('estree').Node} */ (/** @type {unknown} */ (node)),
+              message:
+                'ORM Entity 禁止使用 adapter / GraphQL / HTTP / Swagger / validation / transformer 装饰器 "{{decoratorName}}"。',
+              data: { decoratorName },
+            });
+          },
+        };
+      },
+    },
+    'no-graphql-schema-registration-outside-schema': {
+      meta: {
+        type: /** @type {const} */ ('problem'),
+        docs: {
+          description: 'disallow GraphQL enum/scalar registration outside schema registry files',
+        },
+        schema: [],
+      },
+      /** @param {import('eslint').Rule.RuleContext} context */
+      create(context) {
+        if (isPathInside(context.filename, GRAPHQL_SCHEMA_ROOT)) {
+          return {};
+        }
+
+        return {
+          /** @param {import('@typescript-eslint/types').TSESTree.ImportDeclaration} node */
+          ImportDeclaration(node) {
+            if (node.source.value !== '@nestjs/graphql') {
+              return;
+            }
+            for (const specifier of node.specifiers) {
+              if (specifier.type !== 'ImportSpecifier') {
+                continue;
+              }
+              const importedName =
+                specifier.imported.type === 'Identifier'
+                  ? specifier.imported.name
+                  : String(specifier.imported.value);
+              if (!GRAPHQL_SCHEMA_REGISTRATION_FUNCTION_NAMES.has(importedName)) {
+                continue;
+              }
+              context.report({
+                node: /** @type {import('estree').Node} */ (
+                  /** @type {unknown} */ (specifier)
+                ),
+                message:
+                  'GraphQL enum/scalar 注册只能放在 src/adapters/api/graphql/schema/。当前导入: "{{importedName}}"',
+                data: { importedName },
+              });
+            }
+          },
+          /** @param {import('estree').CallExpression} node */
+          CallExpression(node) {
+            if (
+              node.callee.type !== 'Identifier' ||
+              !GRAPHQL_SCHEMA_REGISTRATION_FUNCTION_NAMES.has(node.callee.name)
+            ) {
+              return;
+            }
+            context.report({
+              node,
+              message:
+                'GraphQL enum/scalar 注册只能放在 src/adapters/api/graphql/schema/。当前调用: "{{functionName}}"',
+              data: { functionName: node.callee.name },
             });
           },
         };
@@ -1209,7 +1443,9 @@ export default defineConfig(
       'local-architecture/no-cross-domain-usecases-imports': 'error',
       'local-architecture/no-types-to-core-imports': 'error',
       'local-architecture/no-cross-domain-modules-imports': 'error',
+      'local-architecture/no-adapter-decorators-on-entities': 'error',
       'local-architecture/no-boundary-port-naming-drift': 'error',
+      'local-architecture/no-graphql-schema-registration-outside-schema': 'error',
       'local-architecture/no-transaction-manager-alias': 'error',
       'local-architecture/no-usecase-transaction-manager-orm-api': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
@@ -1274,6 +1510,27 @@ export default defineConfig(
         {
           patterns: [
             '@nestjs/*',
+            'class-transformer',
+            'class-validator',
+            'express',
+            'graphql',
+            'typeorm',
+            ...RESTRICTED_SRC_TYPES_IMPORT_PATTERNS,
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/types/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            '@nestjs/*',
+            'class-transformer',
+            'class-validator',
             'graphql',
             'typeorm',
             ...RESTRICTED_SRC_TYPES_IMPORT_PATTERNS,
