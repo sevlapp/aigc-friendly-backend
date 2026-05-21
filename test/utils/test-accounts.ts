@@ -16,11 +16,7 @@ export interface TestAccountConfig {
   identityType: IdentityTypeEnum;
 }
 
-/**
- * 旧测试中仍存在 manager/coach/customer/learner key 名称。
- * 这里仅保留为 fixture alias，实际只创建通用账号与 user_info。
- */
-export const testAccountsConfig: Record<string, TestAccountConfig> = {
+export const testAccountsConfig = {
   staff: {
     loginName: 'teststaff',
     loginEmail: 'staff@example.com',
@@ -29,18 +25,18 @@ export const testAccountsConfig: Record<string, TestAccountConfig> = {
     accessGroup: [IdentityTypeEnum.STAFF],
     identityType: IdentityTypeEnum.STAFF,
   },
-  manager: {
-    loginName: 'testmanager',
-    loginEmail: 'manager@example.com',
-    loginPassword: 'testManager@2024',
+  staffPrimary: {
+    loginName: 'teststaffprimary',
+    loginEmail: 'staff.primary@example.com',
+    loginPassword: 'testStaffPrimary@2024',
     status: AccountStatus.ACTIVE,
     accessGroup: [IdentityTypeEnum.STAFF],
     identityType: IdentityTypeEnum.STAFF,
   },
-  coach: {
-    loginName: 'testcoach',
-    loginEmail: 'coach@example.com',
-    loginPassword: 'testCoach@2024',
+  staffSecondary: {
+    loginName: 'teststaffsecondary',
+    loginEmail: 'staff.secondary@example.com',
+    loginPassword: 'testStaffSecondary@2024',
     status: AccountStatus.ACTIVE,
     accessGroup: [IdentityTypeEnum.STAFF],
     identityType: IdentityTypeEnum.STAFF,
@@ -54,18 +50,18 @@ export const testAccountsConfig: Record<string, TestAccountConfig> = {
     // ✅ 修正：与 roles-guard.e2e-spec.ts 保持一致，使用 REGISTRANT
     identityType: IdentityTypeEnum.REGISTRANT,
   },
-  customer: {
-    loginName: 'testcustomer',
-    loginEmail: 'customer@example.com',
-    loginPassword: 'testCustomer@2024',
+  guestPrimary: {
+    loginName: 'testguestprimary',
+    loginEmail: 'guest.primary@example.com',
+    loginPassword: 'testGuestPrimary@2024',
     status: AccountStatus.ACTIVE,
     accessGroup: [IdentityTypeEnum.GUEST],
     identityType: IdentityTypeEnum.GUEST,
   },
-  learner: {
-    loginName: 'testlearner',
-    loginEmail: 'learner@example.com',
-    loginPassword: 'testLearner@2024',
+  guestSecondary: {
+    loginName: 'testguestsecondary',
+    loginEmail: 'guest.secondary@example.com',
+    loginPassword: 'testGuestSecondary@2024',
     status: AccountStatus.ACTIVE,
     accessGroup: [IdentityTypeEnum.GUEST],
     identityType: IdentityTypeEnum.GUEST,
@@ -86,15 +82,17 @@ export const testAccountsConfig: Record<string, TestAccountConfig> = {
     accessGroup: [], // 空数组，符合测试期望
     identityType: IdentityTypeEnum.REGISTRANT,
   },
-  coachCustomer: {
-    loginName: 'testcoachcustomer',
-    loginEmail: 'coachcustomer@example.com',
-    loginPassword: 'testCoachCustomer@2024',
+  staffGuest: {
+    loginName: 'teststaffguest',
+    loginEmail: 'staff.guest@example.com',
+    loginPassword: 'testStaffGuest@2024',
     status: AccountStatus.ACTIVE,
     accessGroup: [IdentityTypeEnum.STAFF, IdentityTypeEnum.GUEST],
     identityType: IdentityTypeEnum.STAFF,
   },
-};
+} satisfies Record<string, TestAccountConfig>;
+
+export type TestAccountKey = keyof typeof testAccountsConfig;
 
 /**
  * 清理所有与测试账号相关的数据
@@ -114,10 +112,10 @@ export const seedTestAccounts = async (opts: {
   dataSource: DataSource;
   createAccountUsecase?: CreateAccountUsecase | null;
   // 可选：显式指定要创建哪些 key，不传则全量
-  includeKeys?: Array<keyof typeof testAccountsConfig>;
+  includeKeys?: TestAccountKey[];
 }): Promise<void> => {
   const { dataSource, createAccountUsecase, includeKeys } = opts;
-  const list = includeKeys ?? Object.keys(testAccountsConfig);
+  const list = includeKeys ?? (Object.keys(testAccountsConfig) as TestAccountKey[]);
 
   await Promise.all(
     list.map(async (key) => {

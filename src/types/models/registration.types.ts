@@ -13,10 +13,6 @@ export interface RegisterWithEmailParams {
   type?: RegisterTypeEnum;
   inviteToken?: string;
   clientIp?: string;
-  serverNetworkInterfaces?: Record<
-    string,
-    ReadonlyArray<{ address: string; family: string | number }> | undefined
-  >;
 }
 
 /**

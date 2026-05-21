@@ -193,17 +193,17 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
   let dataSource: DataSource;
 
   let adminToken: string;
-  let managerToken: string;
-  let coachToken: string;
-  let customerToken: string;
-  let learnerToken: string;
+  let staffPrimaryToken: string;
+  let staffSecondaryToken: string;
+  let guestPrimaryToken: string;
+  let guestSecondaryToken: string;
 
   let adminAccountId: number;
-  let managerAccountId: number;
+  let staffPrimaryAccountId: number;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let coachAccountId: number;
-  let customerAccountId: number;
-  let learnerAccountId: number;
+  let staffSecondaryAccountId: number;
+  let guestPrimaryAccountId: number;
+  let guestSecondaryAccountId: number;
 
   let otherGuestAccountId: number;
 
@@ -221,7 +221,7 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
     await cleanupTestAccounts(dataSource);
     await seedTestAccounts({
       dataSource,
-      includeKeys: ['admin', 'manager', 'coach', 'customer', 'learner'],
+      includeKeys: ['admin', 'staffPrimary', 'staffSecondary', 'guestPrimary', 'guestSecondary'],
     });
 
     adminToken = await loginAndGetToken(
@@ -229,40 +229,43 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
       testAccountsConfig.admin.loginName,
       testAccountsConfig.admin.loginPassword,
     );
-    managerToken = await loginAndGetToken(
+    staffPrimaryToken = await loginAndGetToken(
       app,
-      testAccountsConfig.manager.loginName,
-      testAccountsConfig.manager.loginPassword,
+      testAccountsConfig.staffPrimary.loginName,
+      testAccountsConfig.staffPrimary.loginPassword,
     );
-    coachToken = await loginAndGetToken(
+    staffSecondaryToken = await loginAndGetToken(
       app,
-      testAccountsConfig.coach.loginName,
-      testAccountsConfig.coach.loginPassword,
+      testAccountsConfig.staffSecondary.loginName,
+      testAccountsConfig.staffSecondary.loginPassword,
     );
-    customerToken = await loginAndGetToken(
+    guestPrimaryToken = await loginAndGetToken(
       app,
-      testAccountsConfig.customer.loginName,
-      testAccountsConfig.customer.loginPassword,
+      testAccountsConfig.guestPrimary.loginName,
+      testAccountsConfig.guestPrimary.loginPassword,
     );
-    learnerToken = await loginAndGetToken(
+    guestSecondaryToken = await loginAndGetToken(
       app,
-      testAccountsConfig.learner.loginName,
-      testAccountsConfig.learner.loginPassword,
+      testAccountsConfig.guestSecondary.loginName,
+      testAccountsConfig.guestSecondary.loginPassword,
     );
 
     adminAccountId = await getAccountIdByLoginName(dataSource, testAccountsConfig.admin.loginName);
-    managerAccountId = await getAccountIdByLoginName(
+    staffPrimaryAccountId = await getAccountIdByLoginName(
       dataSource,
-      testAccountsConfig.manager.loginName,
+      testAccountsConfig.staffPrimary.loginName,
     );
-    coachAccountId = await getAccountIdByLoginName(dataSource, testAccountsConfig.coach.loginName);
-    customerAccountId = await getAccountIdByLoginName(
+    staffSecondaryAccountId = await getAccountIdByLoginName(
       dataSource,
-      testAccountsConfig.customer.loginName,
+      testAccountsConfig.staffSecondary.loginName,
     );
-    learnerAccountId = await getAccountIdByLoginName(
+    guestPrimaryAccountId = await getAccountIdByLoginName(
       dataSource,
-      testAccountsConfig.learner.loginName,
+      testAccountsConfig.guestPrimary.loginName,
+    );
+    guestSecondaryAccountId = await getAccountIdByLoginName(
+      dataSource,
+      testAccountsConfig.guestSecondary.loginName,
     );
 
     const created = await ensureOtherGuestAccount(dataSource);
@@ -275,8 +278,8 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
 
   describe('正例', () => {
     it('自己改自己（STAFF）：只改 nickname', async () => {
-      const newNickname = 'manager_nickname_new';
-      const res = await updateUserInfo(app, managerToken, { nickname: newNickname });
+      const newNickname = 'staff_primary_nickname_new';
+      const res = await updateUserInfo(app, staffPrimaryToken, { nickname: newNickname });
       expect(res.body.errors).toBeUndefined();
       expect(res.body.data.updateUserInfo.isUpdated).toBe(true);
       expect(res.body.data.updateUserInfo.userInfo.nickname).toBe(newNickname);
@@ -294,7 +297,7 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
 
     it('ADMIN 改任意 GUEST：改 signature', async () => {
       const res = await updateUserInfo(app, adminToken, {
-        accountId: learnerAccountId,
+        accountId: guestSecondaryAccountId,
         signature: '管理员设置',
       });
       expect(res.body.errors).toBeUndefined();
@@ -303,8 +306,8 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
     });
 
     it('STAFF 改 GUEST：改 phone', async () => {
-      const res = await updateUserInfo(app, managerToken, {
-        accountId: learnerAccountId,
+      const res = await updateUserInfo(app, staffPrimaryToken, {
+        accountId: guestSecondaryAccountId,
         phone: '13900001111',
       });
       expect(res.body.errors).toBeUndefined();
@@ -313,8 +316,8 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
     });
 
     it('另一个 STAFF 改 GUEST：改 avatarUrl', async () => {
-      const res = await updateUserInfo(app, coachToken, {
-        accountId: customerAccountId,
+      const res = await updateUserInfo(app, staffSecondaryToken, {
+        accountId: guestPrimaryAccountId,
         avatarUrl: 'https://example.com/avatar.png',
       });
       expect(res.body.errors).toBeUndefined();
@@ -325,11 +328,11 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
     });
 
     it('幂等：空 patch → isUpdated=false，不写库', async () => {
-      const before = await updateUserInfo(app, managerToken, {});
+      const before = await updateUserInfo(app, staffPrimaryToken, {});
       expect(before.body.errors).toBeUndefined();
       const updatedAt1 = before.body.data.updateUserInfo.userInfo.updatedAt;
 
-      const after = await updateUserInfo(app, managerToken, {});
+      const after = await updateUserInfo(app, staffPrimaryToken, {});
       expect(after.body.errors).toBeUndefined();
       const updatedAt2 = after.body.data.updateUserInfo.userInfo.updatedAt;
 
@@ -341,17 +344,17 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
       // 读取当前 nickname
       const readResp = await request(app.getHttpServer())
         .post('/graphql')
-        .set('Authorization', `Bearer ${customerToken}`)
+        .set('Authorization', `Bearer ${guestPrimaryToken}`)
         .send({
-          query: `query { userInfo(accountId: ${customerAccountId}) { nickname } }`,
+          query: `query { userInfo(accountId: ${guestPrimaryAccountId}) { nickname } }`,
         })
         .expect(200);
       if (readResp.body.errors)
         throw new Error(`读取用户信息失败: ${JSON.stringify(readResp.body.errors)}`);
       const currentNickname = readResp.body.data.userInfo.nickname as string;
 
-      const res = await updateUserInfo(app, customerToken, {
-        accountId: customerAccountId,
+      const res = await updateUserInfo(app, guestPrimaryToken, {
+        accountId: guestPrimaryAccountId,
         nickname: currentNickname,
       });
       expect(res.body.errors).toBeUndefined();
@@ -360,7 +363,7 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
     });
 
     it('清空字段：传 null 正确落库（email/phone/address/signature/avatarUrl）', async () => {
-      const res = await updateUserInfo(app, managerToken, {
+      const res = await updateUserInfo(app, staffPrimaryToken, {
         email: null,
         phone: null,
         address: null,
@@ -385,8 +388,8 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
 
   describe('负例', () => {
     it('GUEST 改别人（GUEST）→ 拒绝', async () => {
-      const res = await updateUserInfo(app, learnerToken, {
-        accountId: customerAccountId,
+      const res = await updateUserInfo(app, guestSecondaryToken, {
+        accountId: guestPrimaryAccountId,
         nickname: 'x',
       });
       expect(res.body.errors).toBeDefined();
@@ -396,7 +399,7 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
 
     it('非本人修改登录 hint → 拒绝', async () => {
       const res = await updateUserInfo(app, adminToken, {
-        accountId: learnerAccountId,
+        accountId: guestSecondaryAccountId,
         identityHint: IdentityTypeEnum.GUEST,
       });
       expect(res.body.errors).toBeDefined();
@@ -405,7 +408,7 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
     });
 
     it('登录 hint 不在访问组内应报错', async () => {
-      const res = await updateUserInfo(app, customerToken, {
+      const res = await updateUserInfo(app, guestPrimaryToken, {
         identityHint: IdentityTypeEnum.STAFF,
       });
       expect(res.body.errors).toBeDefined();
@@ -414,7 +417,7 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
     });
 
     it('GUEST 改其它 GUEST → 拒绝', async () => {
-      const res = await updateUserInfo(app, customerToken, {
+      const res = await updateUserInfo(app, guestPrimaryToken, {
         accountId: otherGuestAccountId,
         nickname: 'not-allowed',
       });
@@ -424,8 +427,8 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
     });
 
     it('GUEST 改 STAFF → 拒绝', async () => {
-      const res = await updateUserInfo(app, customerToken, {
-        accountId: managerAccountId,
+      const res = await updateUserInfo(app, guestPrimaryToken, {
+        accountId: staffPrimaryAccountId,
         nickname: 'nope',
       });
       expect(res.body.errors).toBeDefined();
@@ -434,8 +437,8 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
     });
 
     it('昵称唯一性冲突（NICKNAME_TAKEN）', async () => {
-      const duplicateNickname = `${testAccountsConfig.customer.loginName}_nickname`;
-      const res = await updateUserInfo(app, managerToken, { nickname: duplicateNickname });
+      const duplicateNickname = `${testAccountsConfig.guestPrimary.loginName}_nickname`;
+      const res = await updateUserInfo(app, staffPrimaryToken, { nickname: duplicateNickname });
       expect(res.body.errors).toBeDefined();
       const code = res.body.errors?.[0]?.extensions?.errorCode;
       const gqlCode = res.body.errors?.[0]?.extensions?.code;
@@ -444,7 +447,7 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
     });
 
     it('birthDate 格式错误（YYYY-MM-DD）', async () => {
-      const res = await updateUserInfo(app, managerToken, { birthDate: '2024/01/01' });
+      const res = await updateUserInfo(app, staffPrimaryToken, { birthDate: '2024/01/01' });
       expect(res.body.errors).toBeDefined();
       const code = res.body.errors?.[0]?.extensions?.errorCode;
       const gqlCode = res.body.errors?.[0]?.extensions?.code;
@@ -456,35 +459,35 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
 
     it('email 长度上限 50', async () => {
       const overEmail = 'a'.repeat(51) + '@example.com';
-      const r = await updateUserInfo(app, managerToken, { email: overEmail });
+      const r = await updateUserInfo(app, staffPrimaryToken, { email: overEmail });
       expect(r.body.errors).toBeDefined();
       expect(r.body.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
     });
 
     it('phone 长度上限 20', async () => {
       const overPhone = '1'.repeat(21);
-      const r = await updateUserInfo(app, managerToken, { phone: overPhone });
+      const r = await updateUserInfo(app, staffPrimaryToken, { phone: overPhone });
       expect(r.body.errors).toBeDefined();
       expect(r.body.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
     });
 
     it('address 长度上限 255', async () => {
       const overAddr = 'X'.repeat(256);
-      const r = await updateUserInfo(app, managerToken, { address: overAddr });
+      const r = await updateUserInfo(app, staffPrimaryToken, { address: overAddr });
       expect(r.body.errors).toBeDefined();
       expect(r.body.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
     });
 
     it('signature 长度上限 100', async () => {
       const overSign = 'S'.repeat(101);
-      const r = await updateUserInfo(app, managerToken, { signature: overSign });
+      const r = await updateUserInfo(app, staffPrimaryToken, { signature: overSign });
       expect(r.body.errors).toBeDefined();
       expect(r.body.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
     });
 
     it('avatarUrl 长度上限 255', async () => {
       const overAvatar = 'A'.repeat(256);
-      const r = await updateUserInfo(app, managerToken, { avatarUrl: overAvatar });
+      const r = await updateUserInfo(app, staffPrimaryToken, { avatarUrl: overAvatar });
       expect(r.body.errors).toBeDefined();
       expect(r.body.errors?.[0]?.extensions?.code).toBe('BAD_USER_INPUT');
     });
@@ -492,7 +495,7 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
     it('tags 类型不对时报错（GraphQL BAD_USER_INPUT）', async () => {
       const resp = await request(app.getHttpServer())
         .post('/graphql')
-        .set('Authorization', `Bearer ${managerToken}`)
+        .set('Authorization', `Bearer ${staffPrimaryToken}`)
         .send({
           query: `
             mutation Update($input: UpdateUserInfoInput!) {
@@ -510,7 +513,7 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
     });
 
     it('account 查询跨账号读取应拒绝', async () => {
-      const res = await queryAccount(app, managerToken, learnerAccountId);
+      const res = await queryAccount(app, staffPrimaryToken, guestSecondaryAccountId);
       expect(res.body.errors).toBeDefined();
       expect(res.body.errors?.[0]?.extensions?.errorCode).toBe('ACCESS_DENIED');
     });
@@ -518,16 +521,16 @@ describe('UpdateVisibleUserInfo (e2e)', () => {
 
   describe('account 查询鉴权', () => {
     it('account 查询本人账号应允许', async () => {
-      const res = await queryAccount(app, managerToken, managerAccountId);
+      const res = await queryAccount(app, staffPrimaryToken, staffPrimaryAccountId);
       expect(res.body.errors).toBeUndefined();
-      expect(res.body.data.account.id).toBe(managerAccountId);
+      expect(res.body.data.account.id).toBe(staffPrimaryAccountId);
       expect(res.body.data.account.loginEmail).toBeDefined();
     });
 
     it('account 查询管理员跨账号应允许读取敏感字段', async () => {
-      const res = await queryAccount(app, adminToken, learnerAccountId);
+      const res = await queryAccount(app, adminToken, guestSecondaryAccountId);
       expect(res.body.errors).toBeUndefined();
-      expect(res.body.data.account.id).toBe(learnerAccountId);
+      expect(res.body.data.account.id).toBe(guestSecondaryAccountId);
       expect(res.body.data.account.loginEmail).toBeDefined();
     });
   });

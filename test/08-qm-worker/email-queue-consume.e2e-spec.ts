@@ -996,26 +996,26 @@ describe('邮件队列与 Worker（e2e）', () => {
   });
 
   describe('email 触发业务闭环', () => {
-    let managerAccessToken: string;
+    let staffPrimaryAccessToken: string;
 
     beforeAll(async () => {
       const accountRepository = dataSource.getRepository(AccountEntity);
-      const existedManager = await accountRepository.findOne({
-        where: { loginName: testAccountsConfig.manager.loginName },
+      const existingStaffPrimary = await accountRepository.findOne({
+        where: { loginName: testAccountsConfig.staffPrimary.loginName },
       });
-      if (!existedManager) {
+      if (!existingStaffPrimary) {
         const createAccountUsecase = apiApp.get(CreateAccountUsecase);
         await seedTestAccounts({
           dataSource,
           createAccountUsecase,
-          includeKeys: ['manager'],
+          includeKeys: ['staffPrimary'],
         });
       }
 
-      managerAccessToken = await loginAndGetAccessToken({
+      staffPrimaryAccessToken = await loginAndGetAccessToken({
         apiApp,
-        loginName: testAccountsConfig.manager.loginName,
-        loginPassword: testAccountsConfig.manager.loginPassword,
+        loginName: testAccountsConfig.staffPrimary.loginName,
+        loginPassword: testAccountsConfig.staffPrimary.loginPassword,
       });
     });
 
@@ -1044,7 +1044,7 @@ describe('邮件队列与 Worker（e2e）', () => {
 
       const verificationToken = await createVerificationRecord({
         apiApp,
-        bearer: managerAccessToken,
+        bearer: staffPrimaryAccessToken,
         type: VerificationRecordType.PASSWORD_RESET,
         targetAccountId: inviteeAccountId,
         payload: {

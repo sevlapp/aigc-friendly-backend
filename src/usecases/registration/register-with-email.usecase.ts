@@ -2,7 +2,6 @@
 
 import { AccountStatus, IdentityTypeEnum, UserAccountView } from '@app-types/models/account.types';
 import { ACCOUNT_ERROR, AUTH_ERROR, DomainError } from '@core/common/errors';
-import { isPrivateIp, isServerIp } from '@core/common/network/network-access.helper';
 import { PasswordPolicyService } from '@core/common/password/password-policy.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { AccountService } from '@src/modules/account/base/services/account.service';
@@ -53,7 +52,6 @@ export class RegisterWithEmailUsecase {
       type = RegisterTypeEnum.REGISTRANT,
       inviteToken,
       clientIp,
-      serverNetworkInterfaces,
     } = params;
     const normalizedInput = normalizeRegisterWithEmailInput({ loginEmail, nickname });
     const normalizedLoginEmail = normalizedInput.loginEmail;
@@ -61,15 +59,6 @@ export class RegisterWithEmailUsecase {
 
     try {
       const finalClientIp = clientIp ?? '';
-
-      // 判断是否内网且服务器 ip 是 192.168.72.55，如果是走核验流程
-      if (
-        isPrivateIp(finalClientIp) &&
-        isServerIp({ targetIp: '192.168.72.55', networkInterfaces: serverNetworkInterfaces })
-      ) {
-        // 校园网核验流程暂未实现
-        throw new DomainError(ACCOUNT_ERROR.OPERATION_NOT_SUPPORTED, '校园网核验流程暂未实现');
-      }
 
       // 检查账户是否已存在
       await this.checkAccountExists({ loginName, loginEmail: normalizedLoginEmail });

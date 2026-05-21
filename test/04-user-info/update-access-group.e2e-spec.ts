@@ -75,12 +75,12 @@ describe('UpdateAccessGroup (e2e)', () => {
 
   let adminToken: string;
   let staffToken: string;
-  let customerToken: string;
+  let guestPrimaryToken: string;
 
   let adminAccountId: number;
   let staffAccountId: number;
-  let customerAccountId: number;
-  let learnerAccountId: number;
+  let guestPrimaryAccountId: number;
+  let guestSecondaryAccountId: number;
 
   beforeAll(async () => {
     initGraphQLSchema();
@@ -96,7 +96,7 @@ describe('UpdateAccessGroup (e2e)', () => {
     await cleanupTestAccounts(dataSource);
     await seedTestAccounts({
       dataSource,
-      includeKeys: ['admin', 'staff', 'customer', 'learner'],
+      includeKeys: ['admin', 'staff', 'guestPrimary', 'guestSecondary'],
     });
 
     adminToken = await login({
@@ -109,21 +109,21 @@ describe('UpdateAccessGroup (e2e)', () => {
       loginName: testAccountsConfig.staff.loginName,
       loginPassword: testAccountsConfig.staff.loginPassword,
     });
-    customerToken = await login({
+    guestPrimaryToken = await login({
       app,
-      loginName: testAccountsConfig.customer.loginName,
-      loginPassword: testAccountsConfig.customer.loginPassword,
+      loginName: testAccountsConfig.guestPrimary.loginName,
+      loginPassword: testAccountsConfig.guestPrimary.loginPassword,
     });
 
     adminAccountId = await getAccountIdByLoginName(dataSource, testAccountsConfig.admin.loginName);
     staffAccountId = await getAccountIdByLoginName(dataSource, testAccountsConfig.staff.loginName);
-    customerAccountId = await getAccountIdByLoginName(
+    guestPrimaryAccountId = await getAccountIdByLoginName(
       dataSource,
-      testAccountsConfig.customer.loginName,
+      testAccountsConfig.guestPrimary.loginName,
     );
-    learnerAccountId = await getAccountIdByLoginName(
+    guestSecondaryAccountId = await getAccountIdByLoginName(
       dataSource,
-      testAccountsConfig.learner.loginName,
+      testAccountsConfig.guestSecondary.loginName,
     );
   });
 
@@ -134,7 +134,7 @@ describe('UpdateAccessGroup (e2e)', () => {
   describe('正例', () => {
     it('ADMIN 更新访客为 staff 并自动生成身份提示', async () => {
       const input: UpdateAccessGroupInput = {
-        accountId: learnerAccountId,
+        accountId: guestSecondaryAccountId,
         accessGroup: [IdentityTypeEnum.STAFF],
       };
       const res = await executeUpdateAccessGroup({ app, token: adminToken, input });
@@ -150,20 +150,20 @@ describe('UpdateAccessGroup (e2e)', () => {
       const accountRepo = dataSource.getRepository(AccountEntity);
       const userInfoRepo = dataSource.getRepository(UserInfoEntity);
       const updatedUserInfo = await userInfoRepo.findOne({
-        where: { accountId: learnerAccountId },
+        where: { accountId: guestSecondaryAccountId },
       });
       if (!updatedUserInfo) throw new Error('用户信息不存在');
       expect(updatedUserInfo.accessGroup).toEqual([IdentityTypeEnum.STAFF]);
       expect(updatedUserInfo.metaDigest).toEqual([IdentityTypeEnum.STAFF]);
 
-      const updatedAccount = await accountRepo.findOne({ where: { id: learnerAccountId } });
+      const updatedAccount = await accountRepo.findOne({ where: { id: guestSecondaryAccountId } });
       if (!updatedAccount) throw new Error('账户不存在');
       expect(updatedAccount.identityHint).toBe(IdentityTypeEnum.STAFF);
     });
 
     it('STAFF 指定身份提示更新访客访问组', async () => {
       const input: UpdateAccessGroupInput = {
-        accountId: customerAccountId,
+        accountId: guestPrimaryAccountId,
         accessGroup: [IdentityTypeEnum.GUEST, IdentityTypeEnum.STAFF],
         identityHint: IdentityTypeEnum.STAFF,
       };
@@ -180,13 +180,13 @@ describe('UpdateAccessGroup (e2e)', () => {
       const accountRepo = dataSource.getRepository(AccountEntity);
       const userInfoRepo = dataSource.getRepository(UserInfoEntity);
       const updatedUserInfo = await userInfoRepo.findOne({
-        where: { accountId: customerAccountId },
+        where: { accountId: guestPrimaryAccountId },
       });
       if (!updatedUserInfo) throw new Error('用户信息不存在');
       expect(updatedUserInfo.accessGroup).toEqual([IdentityTypeEnum.GUEST, IdentityTypeEnum.STAFF]);
       expect(updatedUserInfo.metaDigest).toEqual([IdentityTypeEnum.GUEST, IdentityTypeEnum.STAFF]);
 
-      const updatedAccount = await accountRepo.findOne({ where: { id: customerAccountId } });
+      const updatedAccount = await accountRepo.findOne({ where: { id: guestPrimaryAccountId } });
       if (!updatedAccount) throw new Error('账户不存在');
       expect(updatedAccount.identityHint).toBe(IdentityTypeEnum.STAFF);
     });
@@ -196,7 +196,7 @@ describe('UpdateAccessGroup (e2e)', () => {
         app,
         token: staffToken,
         input: {
-          accountId: customerAccountId,
+          accountId: guestPrimaryAccountId,
           accessGroup: [IdentityTypeEnum.GUEST],
           identityHint: IdentityTypeEnum.GUEST,
         },
@@ -208,7 +208,7 @@ describe('UpdateAccessGroup (e2e)', () => {
         app,
         token: staffToken,
         input: {
-          accountId: customerAccountId,
+          accountId: guestPrimaryAccountId,
           accessGroup: [IdentityTypeEnum.GUEST, IdentityTypeEnum.GUEST],
         },
       });
@@ -227,9 +227,9 @@ describe('UpdateAccessGroup (e2e)', () => {
     it('GUEST 更新访问组应拒绝', async () => {
       const res = await executeUpdateAccessGroup({
         app,
-        token: customerToken,
+        token: guestPrimaryToken,
         input: {
-          accountId: learnerAccountId,
+          accountId: guestSecondaryAccountId,
           accessGroup: [IdentityTypeEnum.GUEST],
         },
       });
@@ -241,7 +241,7 @@ describe('UpdateAccessGroup (e2e)', () => {
     it('GUEST 更新 staff 访问组应拒绝', async () => {
       const res = await executeUpdateAccessGroup({
         app,
-        token: customerToken,
+        token: guestPrimaryToken,
         input: {
           accountId: staffAccountId,
           accessGroup: [IdentityTypeEnum.STAFF],
@@ -271,7 +271,7 @@ describe('UpdateAccessGroup (e2e)', () => {
         app,
         token: adminToken,
         input: {
-          accountId: learnerAccountId,
+          accountId: guestSecondaryAccountId,
           accessGroup: [IdentityTypeEnum.GUEST],
           identityHint: IdentityTypeEnum.STAFF,
         },

@@ -267,15 +267,15 @@ describe('RolesGuard (e2e)', () => {
       await seedTestAccounts({
         dataSource,
         createAccountUsecase,
-        includeKeys: ['staff', 'customer'],
+        includeKeys: ['staff', 'guestPrimary'],
       });
       staffToken = await loginUser(
         testAccountsConfig.staff.loginName,
         testAccountsConfig.staff.loginPassword,
       );
       guestToken = await loginUser(
-        testAccountsConfig.customer.loginName,
-        testAccountsConfig.customer.loginPassword,
+        testAccountsConfig.guestPrimary.loginName,
+        testAccountsConfig.guestPrimary.loginPassword,
       );
     });
 

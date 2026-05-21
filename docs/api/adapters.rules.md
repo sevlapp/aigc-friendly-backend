@@ -68,7 +68,7 @@ Global error contract: Every GraphQL interface must also follow docs/api/graphql
 - Args：查询或调用参数。
   例如 AccountArgs、AccountsArgs。
 - List：列表与分页响应。
-  例如 AccountsListResponse、CustomersListResponse。
+  例如 AccountsListResponse、UsersListResponse。
 
 ## GraphQL Schema 组织
 

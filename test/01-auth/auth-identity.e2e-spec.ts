@@ -24,7 +24,7 @@ describe('Auth Identity (e2e)', () => {
   let tokenHelper: TokenHelper;
 
   // 直接使用统一测试账号配置
-  const { coach, customer, manager, learner } = testAccountsConfig;
+  const { staffSecondary, guestPrimary, staffPrimary, guestSecondary } = testAccountsConfig;
 
   beforeAll(async () => {
     // 初始化 GraphQL Schema
@@ -46,7 +46,7 @@ describe('Auth Identity (e2e)', () => {
     await seedTestAccounts({
       dataSource,
       createAccountUsecase,
-      includeKeys: ['coach', 'customer', 'manager', 'learner'],
+      includeKeys: ['staffSecondary', 'guestPrimary', 'staffPrimary', 'guestSecondary'],
     });
 
     console.log('✅ 使用统一测试账号创建成功');
@@ -122,9 +122,9 @@ describe('Auth Identity (e2e)', () => {
     return response;
   };
 
-  describe('Coach 身份完整测试', () => {
-    it('应该支持 Coach 用户登录成功', async () => {
-      const response = await performLogin(coach.loginName, coach.loginPassword);
+  describe('Staff secondary 身份完整测试', () => {
+    it('应该支持 staff secondary 用户登录成功', async () => {
+      const response = await performLogin(staffSecondary.loginName, staffSecondary.loginPassword);
 
       const { data } = response.body;
       expect(data?.login.accountId).toBeDefined();
@@ -139,21 +139,21 @@ describe('Auth Identity (e2e)', () => {
       expect(payload?.accessGroup).toContain(IdentityTypeEnum.STAFF);
     });
 
-    it('应该正确返回 Coach 用户信息', async () => {
-      const response = await performLogin(coach.loginName, coach.loginPassword);
+    it('应该正确返回 staff secondary 用户信息', async () => {
+      const response = await performLogin(staffSecondary.loginName, staffSecondary.loginPassword);
 
       const { data } = response.body;
       expect(data?.login.userInfo).toBeDefined();
       expect(data?.login.userInfo.nickname).toBeDefined();
-      expect(data?.login.userInfo.email).toBe(coach.loginEmail);
+      expect(data?.login.userInfo.email).toBe(staffSecondary.loginEmail);
       expect(data?.login.userInfo.accessGroup).toContain(IdentityTypeEnum.STAFF);
       expect(data?.login.userInfo.userState).toBe(UserState.ACTIVE);
     });
   });
 
-  describe('Customer 身份完整测试', () => {
-    it('应该支持 Customer 用户登录成功', async () => {
-      const response = await performLogin(customer.loginName, customer.loginPassword);
+  describe('Guest primary 身份完整测试', () => {
+    it('应该支持 Guest primary 用户登录成功', async () => {
+      const response = await performLogin(guestPrimary.loginName, guestPrimary.loginPassword);
 
       const { data } = response.body;
       expect(data?.login.accountId).toBeDefined();
@@ -168,21 +168,21 @@ describe('Auth Identity (e2e)', () => {
       expect(payload?.accessGroup).toContain(IdentityTypeEnum.GUEST);
     });
 
-    it('应该正确返回 Customer 用户信息', async () => {
-      const response = await performLogin(customer.loginName, customer.loginPassword);
+    it('应该正确返回 Guest primary 用户信息', async () => {
+      const response = await performLogin(guestPrimary.loginName, guestPrimary.loginPassword);
 
       const { data } = response.body;
       expect(data?.login.userInfo).toBeDefined();
       expect(data?.login.userInfo.nickname).toBeDefined();
-      expect(data?.login.userInfo.email).toBe(customer.loginEmail);
+      expect(data?.login.userInfo.email).toBe(guestPrimary.loginEmail);
       expect(data?.login.userInfo.accessGroup).toContain(IdentityTypeEnum.GUEST);
       expect(data?.login.userInfo.userState).toBe(UserState.ACTIVE);
     });
   });
 
-  describe('Manager 身份完整测试', () => {
-    it('应该支持 Manager 用户登录成功', async () => {
-      const response = await performLogin(manager.loginName, manager.loginPassword);
+  describe('Staff primary 身份完整测试', () => {
+    it('应该支持 staff primary 用户登录成功', async () => {
+      const response = await performLogin(staffPrimary.loginName, staffPrimary.loginPassword);
 
       const { data } = response.body;
       expect(data?.login.accountId).toBeDefined();
@@ -197,21 +197,21 @@ describe('Auth Identity (e2e)', () => {
       expect(payload?.accessGroup).toContain(IdentityTypeEnum.STAFF);
     });
 
-    it('应该正确返回 Manager 用户信息', async () => {
-      const response = await performLogin(manager.loginName, manager.loginPassword);
+    it('应该正确返回 staff primary 用户信息', async () => {
+      const response = await performLogin(staffPrimary.loginName, staffPrimary.loginPassword);
 
       const { data } = response.body;
       expect(data?.login.userInfo).toBeDefined();
       expect(data?.login.userInfo.nickname).toBeDefined();
-      expect(data?.login.userInfo.email).toBe(manager.loginEmail);
+      expect(data?.login.userInfo.email).toBe(staffPrimary.loginEmail);
       expect(data?.login.userInfo.accessGroup).toContain(IdentityTypeEnum.STAFF);
       expect(data?.login.userInfo.userState).toBe(UserState.ACTIVE);
     });
   });
 
-  describe('Learner 身份完整测试', () => {
-    it('应该支持 Learner 用户登录成功', async () => {
-      const response = await performLogin(learner.loginName, learner.loginPassword);
+  describe('Guest secondary 身份完整测试', () => {
+    it('应该支持 guest secondary 用户登录成功', async () => {
+      const response = await performLogin(guestSecondary.loginName, guestSecondary.loginPassword);
 
       const { data } = response.body;
       expect(data?.login.accountId).toBeDefined();
@@ -226,45 +226,45 @@ describe('Auth Identity (e2e)', () => {
       expect(payload?.accessGroup).toContain(IdentityTypeEnum.GUEST);
     });
 
-    it('应该正确返回 Learner 用户信息', async () => {
-      const response = await performLogin(learner.loginName, learner.loginPassword);
+    it('应该正确返回 guest secondary 用户信息', async () => {
+      const response = await performLogin(guestSecondary.loginName, guestSecondary.loginPassword);
 
       const { data } = response.body;
       expect(data?.login.userInfo).toBeDefined();
       expect(data?.login.userInfo.nickname).toBeDefined();
-      expect(data?.login.userInfo.email).toBe(learner.loginEmail);
+      expect(data?.login.userInfo.email).toBe(guestSecondary.loginEmail);
       expect(data?.login.userInfo.accessGroup).toContain(IdentityTypeEnum.GUEST);
       expect(data?.login.userInfo.userState).toBe(UserState.ACTIVE);
     });
   });
 
   describe('身份角色决策测试', () => {
-    it('应该正确决策 Coach 角色', async () => {
-      const response = await performLogin(coach.loginName, coach.loginPassword);
+    it('应该正确决策 staff secondary 角色', async () => {
+      const response = await performLogin(staffSecondary.loginName, staffSecondary.loginPassword);
 
       const { data } = response.body;
       expect(data?.login.role).toBe(IdentityTypeEnum.STAFF);
       expect(data?.login.userInfo.accessGroup).toContain(IdentityTypeEnum.STAFF);
     });
 
-    it('应该正确决策 Customer 角色', async () => {
-      const response = await performLogin(customer.loginName, customer.loginPassword);
+    it('应该正确决策 Guest primary 角色', async () => {
+      const response = await performLogin(guestPrimary.loginName, guestPrimary.loginPassword);
 
       const { data } = response.body;
       expect(data?.login.role).toBe(IdentityTypeEnum.GUEST);
       expect(data?.login.userInfo.accessGroup).toContain(IdentityTypeEnum.GUEST);
     });
 
-    it('应该正确决策 Manager 角色', async () => {
-      const response = await performLogin(manager.loginName, manager.loginPassword);
+    it('应该正确决策 staff primary 角色', async () => {
+      const response = await performLogin(staffPrimary.loginName, staffPrimary.loginPassword);
 
       const { data } = response.body;
       expect(data?.login.role).toBe(IdentityTypeEnum.STAFF);
       expect(data?.login.userInfo.accessGroup).toContain(IdentityTypeEnum.STAFF);
     });
 
-    it('应该正确决策 Learner 角色', async () => {
-      const response = await performLogin(learner.loginName, learner.loginPassword);
+    it('应该正确决策 guest secondary 角色', async () => {
+      const response = await performLogin(guestSecondary.loginName, guestSecondary.loginPassword);
 
       const { data } = response.body;
       expect(data?.login.role).toBe(IdentityTypeEnum.GUEST);
@@ -273,8 +273,8 @@ describe('Auth Identity (e2e)', () => {
   });
 
   describe('JWT Token 验证', () => {
-    it('Coach 登录应该返回有效的 JWT Token', async () => {
-      const response = await performLogin(coach.loginName, coach.loginPassword);
+    it('staff secondary 登录应该返回有效的 JWT Token', async () => {
+      const response = await performLogin(staffSecondary.loginName, staffSecondary.loginPassword);
 
       const { data } = response.body;
       const accessToken = data?.login.accessToken;
@@ -288,8 +288,8 @@ describe('Auth Identity (e2e)', () => {
       expect(refreshToken.split('.')).toHaveLength(3);
     });
 
-    it('Customer 登录应该返回有效的 JWT Token', async () => {
-      const response = await performLogin(customer.loginName, customer.loginPassword);
+    it('Guest primary 登录应该返回有效的 JWT Token', async () => {
+      const response = await performLogin(guestPrimary.loginName, guestPrimary.loginPassword);
 
       const { data } = response.body;
       const accessToken = data?.login.accessToken;
@@ -303,8 +303,8 @@ describe('Auth Identity (e2e)', () => {
       expect(refreshToken.split('.')).toHaveLength(3);
     });
 
-    it('Manager 登录应该返回有效的 JWT Token', async () => {
-      const response = await performLogin(manager.loginName, manager.loginPassword);
+    it('staff primary 登录应该返回有效的 JWT Token', async () => {
+      const response = await performLogin(staffPrimary.loginName, staffPrimary.loginPassword);
 
       const { data } = response.body;
       const accessToken = data?.login.accessToken;
@@ -318,8 +318,8 @@ describe('Auth Identity (e2e)', () => {
       expect(refreshToken.split('.')).toHaveLength(3);
     });
 
-    it('Learner 登录应该返回有效的 JWT Token', async () => {
-      const response = await performLogin(learner.loginName, learner.loginPassword);
+    it('guest secondary 登录应该返回有效的 JWT Token', async () => {
+      const response = await performLogin(guestSecondary.loginName, guestSecondary.loginPassword);
 
       const { data } = response.body;
       const accessToken = data?.login.accessToken;
