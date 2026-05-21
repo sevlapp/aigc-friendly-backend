@@ -1,5 +1,5 @@
 // src/infrastructure/security/hmac-signer.ts
-// ICursorSigner 的 HMAC 实现，配置由 ConfigService 注入
+// ICursorSigner 的 HMAC 实现，secret 由上层 DI wiring 注入
 
 import { DomainError, PAGINATION_ERROR } from '@core/common/errors/domain-error';
 import type { ICursorSigner } from '@core/pagination/pagination.contract';

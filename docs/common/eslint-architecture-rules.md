@@ -91,6 +91,12 @@ performs an automatic `--fix` pass.
   Upstream layers must use View, DTO, record snapshot, or stable contract types instead of
   importing Entity classes, including type-only imports.
 
+- `local-architecture/no-runtime-config-outside-wiring`
+  Blocks direct `process.env` outside infrastructure, bootstraps, and tests.
+  Blocks `@nestjs/config` imports outside infrastructure, bootstraps, tests, or adapters/modules
+  `*.module.ts` DI wiring. Service / Guard / Strategy / Usecase execution classes should receive
+  already-normalized options through DI tokens instead of reading ConfigService directly.
+
 - `no-restricted-imports`
   Blocks direct `src/types/**`, `@src/types/**`, and `**/src/types/**` imports.
   Shared global types must use `@app-types/*`.

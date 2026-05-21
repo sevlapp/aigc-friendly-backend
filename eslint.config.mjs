@@ -9,6 +9,7 @@ import tseslint from 'typescript-eslint';
 
 const PROJECT_ROOT = import.meta.dirname;
 const ADAPTERS_ROOT = path.join(PROJECT_ROOT, 'src', 'adapters');
+const BOOTSTRAPS_ROOT = path.join(PROJECT_ROOT, 'src', 'bootstraps');
 const CORE_ROOT = path.join(PROJECT_ROOT, 'src', 'core');
 const GRAPHQL_SCHEMA_ROOT = path.join(PROJECT_ROOT, 'src', 'adapters', 'api', 'graphql', 'schema');
 const INFRASTRUCTURE_ROOT = path.join(PROJECT_ROOT, 'src', 'infrastructure');
@@ -100,6 +101,7 @@ const GRAPHQL_ADAPTER_DECORATOR_NAMES = new Set([
   'Root',
   'Subscription',
 ]);
+const RUNTIME_CONFIG_IMPORT_NAMES = new Set(['ConfigModule', 'ConfigService']);
 const TRANSACTION_MANAGER_ORM_METHODS = new Set([
   'createQueryBuilder',
   'delete',
@@ -161,6 +163,59 @@ function isMixedServiceFilePath(filePath) {
   return (
     (fileName.endsWith('.service') || fileName.endsWith('.service.ts')) &&
     !isQueryServiceFilePath(resolved)
+  );
+}
+
+/**
+ * @param {string} filePath
+ * @returns {boolean}
+ */
+function isTestFilePath(filePath) {
+  const normalized = path.resolve(filePath).split(path.sep).join('/');
+  return (
+    normalized.includes('/test/') ||
+    /\.spec\.ts$/.test(normalized) ||
+    /\.test\.ts$/.test(normalized)
+  );
+}
+
+/**
+ * @param {string} filePath
+ * @returns {boolean}
+ */
+function isModuleFilePath(filePath) {
+  return /(^|[/\\])[^/\\]+\.module(?:\.ts)?$/.test(filePath);
+}
+
+/**
+ * @param {string} filePath
+ * @returns {boolean}
+ */
+function isRuntimeConfigImportAllowedFilePath(filePath) {
+  const resolved = path.resolve(filePath);
+  if (
+    isPathInside(resolved, INFRASTRUCTURE_ROOT) ||
+    isPathInside(resolved, BOOTSTRAPS_ROOT) ||
+    isTestFilePath(resolved)
+  ) {
+    return true;
+  }
+  return (
+    isModuleFilePath(resolved) &&
+    (isPathInside(resolved, MODULES_ROOT) || isPathInside(resolved, ADAPTERS_ROOT))
+  );
+}
+
+/**
+ * @param {string} filePath
+ * @returns {boolean}
+ */
+function isProcessEnvAllowedFilePath(filePath) {
+  const resolved = path.resolve(filePath);
+  return (
+    isPathInside(resolved, INFRASTRUCTURE_ROOT) ||
+    isPathInside(resolved, BOOTSTRAPS_ROOT) ||
+    isTestFilePath(resolved)
   );
 }
 
@@ -644,6 +699,66 @@ const localArchitecturePlugin = {
               message:
                 'Usecase 只能传递 transaction context，不得直接调用事务上下文的 ORM API "{{methodName}}"；请下沉到 modules service / QueryService / repository 封装。',
               data: { methodName },
+            });
+          },
+        };
+      },
+    },
+    'no-runtime-config-outside-wiring': {
+      meta: {
+        type: /** @type {const} */ ('problem'),
+        docs: {
+          description:
+            'disallow process.env and Nest ConfigService outside infrastructure, bootstraps, tests, or module wiring',
+        },
+        schema: [],
+      },
+      /** @param {import('eslint').Rule.RuleContext} context */
+      create(context) {
+        const isConfigImportAllowed = isRuntimeConfigImportAllowedFilePath(context.filename);
+        const isProcessEnvAllowed = isProcessEnvAllowedFilePath(context.filename);
+
+        return {
+          /** @param {import('@typescript-eslint/types').TSESTree.ImportDeclaration} node */
+          ImportDeclaration(node) {
+            if (node.source.value !== '@nestjs/config' || isConfigImportAllowed) {
+              return;
+            }
+            const importedNames = node.specifiers
+              .map((specifier) => {
+                if (specifier.type !== 'ImportSpecifier') {
+                  return specifier.local.name;
+                }
+                return specifier.imported.type === 'Identifier'
+                  ? specifier.imported.name
+                  : String(specifier.imported.value);
+              })
+              .filter((importedName) => RUNTIME_CONFIG_IMPORT_NAMES.has(importedName));
+            const displayImport =
+              importedNames.length > 0 ? importedNames.join(', ') : '@nestjs/config';
+            context.report({
+              node: /** @type {import('estree').Node} */ (/** @type {unknown} */ (node)),
+              message:
+                '运行时配置读取只能放在 infrastructure、bootstraps、测试，或 adapters/modules 的 *.module.ts DI wiring 中。当前 import: "{{displayImport}}"',
+              data: { displayImport },
+            });
+          },
+          /** @param {import('estree').MemberExpression} node */
+          MemberExpression(node) {
+            if (isProcessEnvAllowed) {
+              return;
+            }
+            if (node.object.type !== 'Identifier' || node.object.name !== 'process') {
+              return;
+            }
+            const propertyName = getStaticPropertyName(node);
+            if (propertyName !== 'env') {
+              return;
+            }
+            context.report({
+              node,
+              message:
+                'process.env 只能在 infrastructure、bootstraps 或测试代码中读取；业务/适配执行逻辑请通过配置模块的 DI wiring 注入。',
             });
           },
         };
@@ -1676,6 +1791,7 @@ export default defineConfig(
       'local-architecture/no-graphql-decorators-outside-adapters': 'error',
       'local-architecture/no-graphql-schema-registration-outside-schema': 'error',
       'local-architecture/no-queryservice-to-mixed-service-imports': 'error',
+      'local-architecture/no-runtime-config-outside-wiring': 'error',
       'local-architecture/no-transaction-manager-alias': 'error',
       'local-architecture/no-upstream-entity-imports': 'error',
       'local-architecture/no-usecase-transaction-manager-orm-api': 'error',

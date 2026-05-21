@@ -24,10 +24,13 @@ Global error contract: Every GraphQL interface must also follow docs/api/graphql
 - 权限守卫与身份注入。
   包括 Guard、Decorator。
 - Schema 初始化与枚举、标量注册，统一通过 schema.init.ts。
+- Adapter module 级 DI wiring。
+  仅用于把运行时配置归一化后注入 Guard / Strategy 所需的 options token。
 
 ## 禁止内容
 
 - 直接依赖 modules(service) 或 infrastructure 的运行时值。
+- 在 Resolver、Guard、Strategy、DTO 等执行类中直接读取 `ConfigService` 或 `process.env`。
 - 在 Adapter 中实现业务规则、事务或跨域编排。
 - 返回 ORM Entity 或 QueryBuilder 给上层调用者。
 - 在 DTO 或 Resolver 中注册副作用。

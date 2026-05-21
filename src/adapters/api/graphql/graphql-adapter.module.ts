@@ -11,6 +11,7 @@ import { VerificationRecordUsecasesModule } from '@src/usecases/verification-rec
 import { VerificationUsecasesModule } from '@src/usecases/verification/verification-usecases.module';
 
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 
 // Resolvers
@@ -27,6 +28,11 @@ import { VerificationRecordResolver } from './verification-record/verification-r
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { QmWorkerEntryGuard } from './guards/qm-worker-entry.guard';
+import {
+  QM_WORKER_ENTRY_OPTIONS,
+  type QmWorkerEntryOptions,
+} from './guards/qm-worker-entry.options';
+import { JWT_STRATEGY_OPTIONS, type JwtStrategyOptions } from './strategies/jwt-strategy.options';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 /**
@@ -48,6 +54,36 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   providers: [
+    {
+      provide: JWT_STRATEGY_OPTIONS,
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService): JwtStrategyOptions => {
+        const secret = configService.get<string>('jwt.secret');
+        if (!secret) {
+          throw new Error('JWT secret 配置缺失');
+        }
+        const issuer = configService.get<string>('jwt.issuer')?.trim() || undefined;
+        const audience = configService
+          .get<string>('jwt.audience')
+          ?.split(',')
+          .map((audienceItem) => audienceItem.trim())
+          .filter((audienceItem) => audienceItem.length > 0);
+        return {
+          secret,
+          issuer,
+          audience: audience && audience.length > 0 ? audience : undefined,
+        };
+      },
+    },
+    {
+      provide: QM_WORKER_ENTRY_OPTIONS,
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService): QmWorkerEntryOptions => ({
+        aiEnabled: configService.get<boolean | undefined>('qmWorkerEntry.ai.enabled') === true,
+        emailEnabled:
+          configService.get<boolean | undefined>('qmWorkerEntry.email.enabled') === true,
+      }),
+    },
     // Resolvers
     AccountResolver,
     AiResolver,

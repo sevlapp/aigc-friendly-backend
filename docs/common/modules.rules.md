@@ -28,6 +28,9 @@ For boundary contract naming, see docs/common/boundary-contract.rules.md.
 - 与 core-owned boundary contract 交互的同域适配逻辑。
 - 通用能力模块化。
   通过 DI token 绑定 infrastructure 实现。
+- Module 级 provider factory 可读取 `ConfigService`，用于把运行时配置归一化为本模块内部
+  options token。
+  Service、QueryService、provider 执行逻辑不得直接读取 `ConfigService` 或 `process.env`。
 - Modules(service) 可拥有 module-owned boundary contract / token，用于隔离本模块所需的
   infrastructure 实现。
   仅在模块需要隔离可替换实现时使用，不应为普通 service 机械创建。
