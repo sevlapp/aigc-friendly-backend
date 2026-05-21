@@ -19,7 +19,7 @@ export class ThirdPartyAuthEntity {
   @PrimaryGeneratedColumn({ type: 'int', comment: '主键' })
   id!: number;
 
-  @Column({ name: 'account_id', type: 'int', comment: '关联账号 base_user_accounts.id' })
+  @Column({ name: 'account_id', type: 'int', comment: '关联账号 base_user_account.id' })
   accountId!: number;
 
   @Column({

@@ -159,9 +159,8 @@ Source of truth: This file defines baseline delivery rules; code examples elsewh
   - 若当前任务不是数据库命名收口，不应顺手重命名既有表。
   - 表名重命名必须同时更新 entity、baseline migration、索引/外键引用、raw SQL、空库校验和相关测试。
 
-  当前项目仍存在少量复数物理表名。
-  这些表名先按现状维护，最终在数据库命名收口批次统一迁移。
-  该批次应排在分层治理修复的最后，避免在架构迁移过程中同时扰动 schema 命名和行为验证。
+  当前项目已完成既有复数表名收口。
+  若后续发现遗漏的复数物理表名，应作为数据库命名治理缺陷处理，并同步更新完整 schema 引用链路。
 
   ## 推荐工作流
 

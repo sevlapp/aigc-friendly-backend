@@ -182,7 +182,7 @@
 
 空库 baseline 需要确保以下字段只表达通用角色：
 
-- `base_user_accounts.identity_hint`
+- `base_user_account.identity_hint`
 - `base_user_info.access_group`
 - `base_user_info.meta_digest`
 
@@ -211,7 +211,7 @@
 - 运行时先停止创建培训班邀请类型。
 - 空库 migration 中不再创建培训班 invite enum。
 - 不新增通用 staff 邀请能力。
-- `base_verification_records.subject_type` 第一阶段只保留通用 `ACCOUNT`。
+- `base_verification_record.subject_type` 第一阶段只保留通用 `ACCOUNT`。
 - 不处理已有库中未消费的培训班 invite 历史行。
 
 ### Training 表 baseline

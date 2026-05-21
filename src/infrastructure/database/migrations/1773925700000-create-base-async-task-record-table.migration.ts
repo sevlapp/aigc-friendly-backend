@@ -1,11 +1,11 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateBaseAsyncTaskRecordsTable1773925700000 implements MigrationInterface {
-  name = 'CreateBaseAsyncTaskRecordsTable1773925700000';
+export class CreateBaseAsyncTaskRecordTable1773925700000 implements MigrationInterface {
+  name = 'CreateBaseAsyncTaskRecordTable1773925700000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      CREATE TABLE \`base_async_task_records\` (
+      CREATE TABLE \`base_async_task_record\` (
         \`id\` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
         \`queue_name\` varchar(64) NOT NULL COMMENT '队列名称',
         \`job_name\` varchar(128) NOT NULL COMMENT '任务名称',
@@ -44,6 +44,6 @@ export class CreateBaseAsyncTaskRecordsTable1773925700000 implements MigrationIn
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query('DROP TABLE `base_async_task_records`;');
+    await queryRunner.query('DROP TABLE `base_async_task_record`;');
   }
 }

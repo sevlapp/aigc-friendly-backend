@@ -298,7 +298,7 @@ export class AiProviderCallRecordService {
     return (
       message.includes('uk_ai_provider_call_trace_seq') ||
       message.includes('uq_ai_provider_call_trace_seq') ||
-      message.includes('ai_provider_call_records.trace_id_call_seq')
+      message.includes('ai_provider_call_record.trace_id_call_seq')
     );
   }
 

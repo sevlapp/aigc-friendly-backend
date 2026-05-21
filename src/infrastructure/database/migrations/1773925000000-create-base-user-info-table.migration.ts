@@ -7,7 +7,7 @@ export class CreateBaseUserInfoTable1773925000000 implements MigrationInterface 
     await queryRunner.query(`
       CREATE TABLE \`base_user_info\` (
         \`id\` int NOT NULL AUTO_INCREMENT COMMENT '主键',
-        \`account_id\` int NOT NULL COMMENT 'user_accounts.id',
+        \`account_id\` int NOT NULL COMMENT 'base_user_account.id',
         \`nickname\` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '昵称',
         \`gender\` enum('MALE','FEMALE','SECRET') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'SECRET' COMMENT '性别',
         \`birth_date\` date DEFAULT NULL COMMENT '出生日期，仅保留年月日',
@@ -28,7 +28,7 @@ export class CreateBaseUserInfoTable1773925000000 implements MigrationInterface 
         PRIMARY KEY (\`id\`),
         UNIQUE KEY \`uk_account_id\` (\`account_id\`),
         KEY \`account_id\` (\`account_id\`),
-        CONSTRAINT \`base_user_info_ibfk_1\` FOREIGN KEY (\`account_id\`) REFERENCES \`base_user_accounts\` (\`id\`)
+        CONSTRAINT \`base_user_info_ibfk_1\` FOREIGN KEY (\`account_id\`) REFERENCES \`base_user_account\` (\`id\`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='用户基本信息表';
     `);
   }

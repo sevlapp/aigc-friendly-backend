@@ -22,20 +22,20 @@ interface MysqlConnectionConfig {
 }
 
 const REQUIRED_TABLES = [
-  'ai_provider_call_records',
-  'base_user_accounts',
+  'ai_provider_call_record',
+  'base_user_account',
   'base_user_info',
-  'base_async_task_records',
+  'base_async_task_record',
   'base_third_party_auth',
-  'base_verification_records',
+  'base_verification_record',
 ] as const;
 
 const REQUIRED_INDEXES: ReadonlyArray<{ table: string; index: string }> = [
-  { table: 'base_user_accounts', index: 'uk_login_email' },
+  { table: 'base_user_account', index: 'uk_login_email' },
   { table: 'base_third_party_auth', index: 'base_third_party_auth_provider_IDX' },
-  { table: 'base_async_task_records', index: 'uk_queue_name_job_id' },
-  { table: 'ai_provider_call_records', index: 'uk_ai_provider_call_trace_seq' },
-  { table: 'base_verification_records', index: 'uk_token_fp' },
+  { table: 'base_async_task_record', index: 'uk_queue_name_job_id' },
+  { table: 'ai_provider_call_record', index: 'uk_ai_provider_call_trace_seq' },
+  { table: 'base_verification_record', index: 'uk_token_fp' },
 ];
 
 const REQUIRED_FOREIGN_KEYS: ReadonlyArray<{
@@ -46,7 +46,7 @@ const REQUIRED_FOREIGN_KEYS: ReadonlyArray<{
   {
     table: 'base_user_info',
     constraint: 'base_user_info_ibfk_1',
-    referencedTable: 'base_user_accounts',
+    referencedTable: 'base_user_account',
   },
 ];
 

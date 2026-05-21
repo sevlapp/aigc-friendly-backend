@@ -11,7 +11,7 @@ import {
 } from 'typeorm';
 import { UserInfoEntity } from './user-info.entity';
 
-@Entity('base_user_accounts')
+@Entity('base_user_account')
 @Index('uk_login_name', ['loginName'], { unique: true })
 @Index('uk_login_email', ['loginEmail'], { unique: true })
 export class AccountEntity {

@@ -1,11 +1,11 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateAiProviderCallRecordsTable1773889200000 implements MigrationInterface {
-  name = 'CreateAiProviderCallRecordsTable1773889200000';
+export class CreateAiProviderCallRecordTable1773889200000 implements MigrationInterface {
+  name = 'CreateAiProviderCallRecordTable1773889200000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      CREATE TABLE \`ai_provider_call_records\` (
+      CREATE TABLE \`ai_provider_call_record\` (
         \`id\` int NOT NULL AUTO_INCREMENT COMMENT '主键ID',
         \`async_task_record_id\` int DEFAULT NULL COMMENT '关联异步任务记录ID；可为空以支持非队列直调场景',
         \`trace_id\` varchar(128) NOT NULL COMMENT '任务级/调用链级追踪ID；不是HTTP requestId',
@@ -52,6 +52,6 @@ export class CreateAiProviderCallRecordsTable1773889200000 implements MigrationI
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query('DROP TABLE `ai_provider_call_records`;');
+    await queryRunner.query('DROP TABLE `ai_provider_call_record`;');
   }
 }

@@ -1,11 +1,11 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateBaseVerificationRecordsTable1773927600000 implements MigrationInterface {
-  name = 'CreateBaseVerificationRecordsTable1773927600000';
+export class CreateBaseVerificationRecordTable1773927600000 implements MigrationInterface {
+  name = 'CreateBaseVerificationRecordTable1773927600000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      CREATE TABLE \`base_verification_records\` (
+      CREATE TABLE \`base_verification_record\` (
         \`id\` int NOT NULL AUTO_INCREMENT COMMENT '验证记录主键 ID',
         \`type\` enum('EMAIL_VERIFY_LINK','EMAIL_VERIFY_CODE','PASSWORD_RESET','SMS_VERIFY_CODE') NOT NULL COMMENT '记录类型：通用验证/一次性动作；细分邮箱链接 vs 验证码',
         \`token_fp\` binary(32) NOT NULL COMMENT '令牌指纹(SHA-256)，不存明文 token',
@@ -31,6 +31,6 @@ export class CreateBaseVerificationRecordsTable1773927600000 implements Migratio
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query('DROP TABLE `base_verification_records`;');
+    await queryRunner.query('DROP TABLE `base_verification_record`;');
   }
 }

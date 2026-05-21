@@ -16,10 +16,10 @@ import {
 
 /**
  * 统一验证记录实体
- * 对应数据库表：base_verification_records
+ * 对应数据库表：base_verification_record
  * 仅用于跨主体/跨端/可撤销动作
  */
-@Entity('base_verification_records')
+@Entity('base_verification_record')
 @Index('uk_token_fp', ['tokenFp'], { unique: true })
 @Index('idx_type_status_exp', ['type', 'status', 'expiresAt'])
 @Index('idx_target', ['targetAccountId'])

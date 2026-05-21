@@ -22,7 +22,7 @@ export class UserInfoEntity {
   @PrimaryGeneratedColumn({ type: 'int', comment: '主键' })
   id!: number;
 
-  @Column({ name: 'account_id', type: 'int', comment: 'user_accounts.id' })
+  @Column({ name: 'account_id', type: 'int', comment: 'base_user_account.id' })
   accountId!: number;
 
   @OneToOne(() => AccountEntity)

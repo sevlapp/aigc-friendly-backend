@@ -30,7 +30,7 @@ export const ASYNC_TASK_RECORD_STATUSES = [
 
 export type AsyncTaskRecordStatus = (typeof ASYNC_TASK_RECORD_STATUSES)[number];
 
-@Entity('base_async_task_records')
+@Entity('base_async_task_record')
 @Index('uk_queue_name_job_id', ['queueName', 'jobId'], { unique: true })
 @Index('idx_trace_id', ['traceId'])
 @Index('idx_actor_account_id', ['actorAccountId'])

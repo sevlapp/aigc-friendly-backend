@@ -1,11 +1,11 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateBaseUserAccountsTable1773924900000 implements MigrationInterface {
-  name = 'CreateBaseUserAccountsTable1773924900000';
+export class CreateBaseUserAccountTable1773924900000 implements MigrationInterface {
+  name = 'CreateBaseUserAccountTable1773924900000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      CREATE TABLE \`base_user_accounts\` (
+      CREATE TABLE \`base_user_account\` (
         \`id\` int NOT NULL AUTO_INCREMENT COMMENT 'primary key',
         \`login_name\` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '账号名',
         \`login_email\` varchar(100) DEFAULT NULL COMMENT '账号email',
@@ -23,6 +23,6 @@ export class CreateBaseUserAccountsTable1773924900000 implements MigrationInterf
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query('DROP TABLE `base_user_accounts`;');
+    await queryRunner.query('DROP TABLE `base_user_account`;');
   }
 }
