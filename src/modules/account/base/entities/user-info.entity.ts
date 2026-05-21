@@ -3,7 +3,6 @@
 
 import { IdentityTypeEnum } from '@app-types/models/account.types';
 import { Gender, UserState, type GeographicInfo } from '@app-types/models/user-info.types';
-import { EncryptedField } from '@src/infrastructure/field-encryption/field-encryption.decorator';
 import {
   Column,
   CreateDateColumn,
@@ -74,7 +73,6 @@ export class UserInfoEntity {
     nullable: true,
     comment: '私有数据加密字段',
   })
-  @EncryptedField() // 使用新的加密装饰器
   metaDigest!: IdentityTypeEnum[] | null; // 修改：从 string | null 改为 IdentityTypeEnum[] | null
 
   @Column({ name: 'notify_count', type: 'int', default: 0, comment: '通知数' })

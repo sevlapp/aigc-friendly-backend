@@ -10,6 +10,7 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FieldEncryptionModule } from '@src/infrastructure/field-encryption/field-encryption.module';
 
+import { AccountFieldEncryptionRegistrar } from './account-field-encryption.registrar';
 import { AccountEntity } from './base/entities/account.entity';
 import { UserInfoEntity } from './base/entities/user-info.entity';
 import { AccountSecurityService } from './base/services/account-security.service';
@@ -28,7 +29,12 @@ export class AccountModule {
         TypeOrmModule.forFeature([AccountEntity, UserInfoEntity]), // base 实体
         FieldEncryptionModule,
       ],
-      providers: [AccountService, AccountQueryService, AccountSecurityService],
+      providers: [
+        AccountFieldEncryptionRegistrar,
+        AccountService,
+        AccountQueryService,
+        AccountSecurityService,
+      ],
       exports: [TypeOrmModule, AccountService, AccountQueryService, AccountSecurityService],
     };
   }
