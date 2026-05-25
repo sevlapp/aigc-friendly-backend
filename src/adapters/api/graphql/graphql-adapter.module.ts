@@ -5,6 +5,7 @@ import { AiQueueUsecasesModule } from '@src/usecases/ai-queue/ai-queue-usecases.
 import { AuthUsecasesModule } from '@src/usecases/auth/auth-usecases.module';
 import { AsyncTaskRecordUsecasesModule } from '@src/usecases/async-task-record/async-task-record-usecases.module';
 import { EmailQueueUsecasesModule } from '@src/usecases/email-queue/email-queue-usecases.module';
+import { MagicWorkshopUsecasesModule } from '@src/usecases/magic-workshop/magic-workshop-usecases.module';
 import { RegistrationUsecasesModule } from '@src/usecases/registration/registration-usecases.module';
 import { ThirdPartyAccountsUsecasesModule } from '@src/usecases/third-party-accounts/third-party-accounts-usecases.module';
 import { VerificationRecordUsecasesModule } from '@src/usecases/verification-record/verification-record-usecases.module';
@@ -23,6 +24,7 @@ import { EmailResolver } from './email/email.resolver';
 import { RegistrationResolver } from './registration/registration.resolver';
 import { ThirdPartyAuthResolver } from './third-party-auth/third-party-auth.resolver';
 import { VerificationRecordResolver } from './verification-record/verification-record.resolver';
+import { MagicWorkshopResolver } from './magic-workshop/magic-workshop.resolver';
 
 // Guards
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -51,6 +53,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     ThirdPartyAccountsUsecasesModule,
     VerificationRecordUsecasesModule,
     VerificationUsecasesModule,
+    MagicWorkshopUsecasesModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
   providers: [
@@ -93,6 +96,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     RegistrationResolver,
     VerificationRecordResolver,
     UserInfoResolver,
+    MagicWorkshopResolver,
     // Guards
     QmWorkerEntryGuard,
     JwtAuthGuard,
@@ -109,6 +113,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     RegistrationResolver,
     VerificationRecordResolver,
     UserInfoResolver,
+    MagicWorkshopResolver,
     QmWorkerEntryGuard,
     JwtAuthGuard,
     RolesGuard,
