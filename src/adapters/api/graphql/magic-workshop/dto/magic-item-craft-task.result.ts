@@ -30,7 +30,7 @@ export class MagicItemCraftTaskDetail {
   @Field(() => String)
   itemName!: string;
 
-  @Field(() => String)
+  @Field(() => MagicItemTypeEnum)   // ✅ 修正：改为枚举类型
   itemType!: MagicItemTypeEnum;
 
   @Field(() => String)
