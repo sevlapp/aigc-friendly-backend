@@ -4,6 +4,7 @@ import { AccountUsecasesModule } from '@src/usecases/account/account-usecases.mo
 import { AiQueueUsecasesModule } from '@src/usecases/ai-queue/ai-queue-usecases.module';
 import { AuthUsecasesModule } from '@src/usecases/auth/auth-usecases.module';
 import { AsyncTaskRecordUsecasesModule } from '@src/usecases/async-task-record/async-task-record-usecases.module';
+import { BlogUsecasesModule } from '@src/usecases/blog/blog-usecases.module';
 import { EmailQueueUsecasesModule } from '@src/usecases/email-queue/email-queue-usecases.module';
 import { MagicWorkshopUsecasesModule } from '@src/usecases/magic-workshop/magic-workshop-usecases.module';
 import { RegistrationUsecasesModule } from '@src/usecases/registration/registration-usecases.module';
@@ -18,6 +19,8 @@ import { PassportModule } from '@nestjs/passport';
 // Resolvers
 import { AccountResolver } from './account/account.resolver';
 import { AiResolver } from './ai/ai.resolver';
+import { BlogResolver } from './blog/blog.resolver';
+import { BlogAdminResolver } from './blog/blog-admin.resolver';
 import { UserInfoResolver } from './account/user-info.resolver';
 import { AuthResolver } from './auth/auth.resolver';
 import { EmailResolver } from './email/email.resolver';
@@ -48,6 +51,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     AiQueueUsecasesModule,
     AsyncTaskRecordUsecasesModule,
     AuthUsecasesModule,
+    BlogUsecasesModule,
     EmailQueueUsecasesModule,
     RegistrationUsecasesModule,
     ThirdPartyAccountsUsecasesModule,
@@ -91,6 +95,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     AccountResolver,
     AiResolver,
     AuthResolver,
+    BlogResolver,
+    BlogAdminResolver,
     ThirdPartyAuthResolver,
     EmailResolver,
     RegistrationResolver,
@@ -108,6 +114,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     AccountResolver,
     AiResolver,
     AuthResolver,
+    BlogResolver,
+    BlogAdminResolver,
     ThirdPartyAuthResolver,
     EmailResolver,
     RegistrationResolver,

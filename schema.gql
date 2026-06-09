@@ -1,0 +1,1236 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+enum AccountStatus {
+  ACTIVE
+  BANNED
+  DELETED
+  INACTIVE
+  PENDING
+  SUSPENDED
+}
+
+type ArchiveStatsDTO {
+  count: Float!
+  month: Float!
+  year: Float!
+}
+
+type AsyncTaskRecordDebugListResult {
+  items: [AsyncTaskRecordDebugType!]!
+}
+
+type AsyncTaskRecordDebugType {
+  actorAccountId: Int
+  actorActiveRole: String
+  attemptCount: Int!
+  bizKey: String!
+  bizSubKey: String
+  bizType: String!
+  createdAt: DateTime!
+  dedupKey: String
+  enqueuedAt: DateTime!
+  finishedAt: DateTime
+  id: Int!
+  jobId: String!
+  jobName: String!
+  maxAttempts: Int
+  occurredAt: DateTime
+  queueName: String!
+  reason: String
+  source: String!
+  startedAt: DateTime
+  status: String!
+  traceId: String!
+  updatedAt: DateTime!
+}
+
+enum AudienceTypeEnum {
+  DESKTOP
+  SJWEAPP
+  SJWEB
+  SSTSTEST
+  SSTSWEAPP
+  SSTSWEB
+}
+
+input AuthLoginInput {
+  """客户端类型"""
+  audience: AudienceTypeEnum!
+
+  """客户端 IP 地址"""
+  ip: String
+
+  """登录名或邮箱"""
+  loginName: String!
+
+  """登录密码"""
+  loginPassword: String!
+
+  """登录类型"""
+  type: LoginTypeEnum!
+}
+
+"""用户基本信息（精简版）"""
+type BasicUserInfoDTO {
+  """关联的账户 ID"""
+  accountId: Float!
+
+  """头像 URL"""
+  avatarUrl: String
+
+  """性别"""
+  gender: Gender!
+
+  """用户信息 ID"""
+  id: ID!
+
+  """昵称"""
+  nickname: String!
+
+  """电话"""
+  phone: String
+}
+
+input BindThirdPartyInput {
+  """访问令牌（仅调试用途）"""
+  accessToken: String
+
+  """第三方平台类型"""
+  provider: ThirdPartyProviderEnum!
+
+  """平台返回的用户唯一标识"""
+  providerUserId: String!
+
+  """联合 ID，如微信的 unionid (仅特定平台提供)"""
+  unionId: String
+}
+
+type BlogStatsDTO {
+  pendingComments: Float!
+  publishedPosts: Float!
+  totalComments: Float!
+  totalLikes: Float!
+  totalPosts: Float!
+  totalViews: Float!
+}
+
+type CategoryDTO {
+  createdAt: DateTime!
+  description: String
+  id: Float!
+  isActive: Boolean!
+  name: String!
+  parentId: Float
+  postCount: Float!
+  slug: String!
+  sortOrder: Float!
+  updatedAt: DateTime!
+}
+
+type CommentDTO {
+  authorAvatar: String
+  authorEmail: String
+  authorName: String!
+  content: String!
+  createdAt: DateTime!
+  id: Float!
+  likeCount: Float!
+  parentId: Float
+  postId: Float!
+  replies: [CommentDTO!]
+  status: String!
+  updatedAt: DateTime!
+}
+
+enum CommentStatus {
+  APPROVED
+  DELETED
+  HIDDEN
+  PENDING
+  REJECTED
+}
+
+type ConfigDTO {
+  description: String
+  key: String!
+  value: String
+}
+
+"""消费验证记录输入参数"""
+input ConsumeVerificationRecordInput {
+  """期望的验证记录类型"""
+  expectedType: VerificationRecordType
+
+  """验证 token"""
+  token: String!
+}
+
+enum CreatableVerificationRecordType {
+  PASSWORD_RESET
+}
+
+input CreateCategoryInput {
+  description: String
+  isActive: Boolean!
+  name: String!
+  parentId: Int
+  slug: String!
+  sortOrder: Int!
+}
+
+input CreateCommentInput {
+  authorEmail: String
+  authorName: String!
+  content: String!
+  parentId: Int
+  postId: Int!
+}
+
+input CreateLinkInput {
+  avatar: String
+  description: String
+  isActive: Boolean!
+  name: String!
+  sortOrder: Int!
+  url: String!
+}
+
+input CreateMagicItemCraftTaskInput {
+  """幂等键"""
+  dedupKey: String
+
+  """道具名称"""
+  itemName: String!
+
+  """道具类型：WEAPON / ARMOR / TOOL / TOY"""
+  itemType: MagicItemType!
+
+  """材料等级 1-5"""
+  materialLevel: Float!
+
+  """请求备注"""
+  requestNote: String
+
+  """链路追踪 ID"""
+  traceId: String
+}
+
+input CreatePostInput {
+  categoryId: Int
+  content: String!
+  coverImage: String
+  excerpt: String
+  isSticky: Boolean!
+  slug: String!
+  status: PostStatus!
+  tagIds: [Int!]
+  title: String!
+  visibility: PostVisibility!
+}
+
+input CreateTagInput {
+  description: String
+  name: String!
+  slug: String!
+}
+
+"""创建验证记录输入参数"""
+input CreateVerificationRecordInput {
+  """过期时间"""
+  expiresAt: DateTime!
+
+  """是否生成数字验证码（默认 false，生成随机字符串）"""
+  generateNumericCode: Boolean
+
+  """生效时间"""
+  notBefore: DateTime
+
+  """数字验证码长度（仅在 generateNumericCode 为 true 时有效，默认 6）"""
+  numericCodeLength: Int
+
+  """载荷数据"""
+  payload: JSON
+
+  """是否在返回体中回明文 token（默认 false）"""
+  returnToken: Boolean
+
+  """主体 ID"""
+  subjectId: Int
+
+  """主体类型"""
+  subjectType: SubjectType
+
+  """目标账号 ID"""
+  targetAccountId: Int
+
+  """令牌（可选，不提供则由后端生成）"""
+  token: String
+
+  """Token 长度（仅在自动生成时有效，默认 32）"""
+  tokenLength: Int
+
+  """记录类型"""
+  type: CreatableVerificationRecordType!
+}
+
+"""创建验证记录结果"""
+type CreateVerificationRecordResult {
+  """创建的验证记录数据"""
+  data: VerificationRecordDTO
+
+  """错误信息"""
+  message: String
+
+  """操作是否成功"""
+  success: Boolean!
+
+  """生成的明文 token（仅创建时返回）"""
+  token: String
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input DebugAsyncTaskRecordByQueueJobInput {
+  jobId: String!
+  queueName: String!
+}
+
+input DebugAsyncTaskRecordsByBizTargetInput {
+  bizKey: String!
+  bizSubKey: String
+  bizType: String!
+  limit: Int
+}
+
+input DebugAsyncTaskRecordsByTraceIdInput {
+  limit: Int
+  traceId: String!
+}
+
+"""验证记录查询参数"""
+input FindVerificationRecordInput {
+  """消费者账号 ID"""
+  consumedByAccountId: Int
+
+  """期望的验证记录类型"""
+  expectedType: VerificationRecordType
+
+  """验证记录 ID"""
+  id: Int
+
+  """忽略目标账号限制（用于公开验证）"""
+  ignoreTargetRestriction: Boolean
+
+  """签发者账号 ID"""
+  issuedByAccountId: Int
+
+  """记录状态"""
+  status: VerificationRecordStatus
+
+  """主体 ID"""
+  subjectId: Int
+
+  """主体类型"""
+  subjectType: SubjectType
+
+  """目标账号 ID"""
+  targetAccountId: Int
+
+  """验证 token"""
+  token: String
+
+  """记录类型"""
+  type: VerificationRecordType
+}
+
+enum Gender {
+  FEMALE
+  MALE
+  SECRET
+}
+
+"""生成微信小程序二维码的输入参数"""
+input GenerateWeappQrcodeInput {
+  """客户端类型"""
+  audience: AudienceTypeEnum!
+
+  """是否校验页面路径（默认 true）"""
+  checkPath: Boolean
+
+  """是否返回 base64（默认 true）"""
+  encodeBase64: Boolean
+
+  """小程序版本（develop / trial / release）"""
+  envVersion: String
+
+  """是否透明底色"""
+  isHyaline: Boolean
+
+  """小程序页面路径（官方要求不带参数）"""
+  page: String
+
+  """场景值（最多 32 个可见字符）"""
+  scene: String!
+
+  """图片宽度（280–1280）"""
+  width: Int
+}
+
+"""生成微信小程序二维码的返回结果"""
+type GenerateWeappQrcodeResultDTO {
+  """图片内容类型（例如 image/png）"""
+  contentType: String!
+
+  """图片 Base64 字符串（当 encodeBase64=true 时返回）"""
+  imageBase64: String
+
+  """图片二进制（当 encodeBase64=false 时返回，按 Base64 编码）"""
+  imageBufferBase64: String
+}
+
+input GetWeappPhoneInput {
+  """账户 ID（已登录用户）"""
+  accountId: Int
+
+  """客户端类型"""
+  audience: AudienceTypeEnum!
+
+  """微信 openid（未登录用户）"""
+  openid: String
+
+  """微信小程序获取手机号的 code"""
+  phoneCode: String!
+}
+
+enum IdentityTypeEnum {
+  ADMIN
+  GUEST
+  REGISTRANT
+  STAFF
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type LinkDTO {
+  avatar: String
+  createdAt: DateTime!
+  description: String
+  id: Float!
+  isActive: Boolean!
+  name: String!
+  sortOrder: Float!
+  updatedAt: DateTime!
+  url: String!
+}
+
+type LoginHistoryItem {
+  """客户端类型"""
+  audience: String
+
+  """登录 IP 地址"""
+  ip: String!
+
+  """登录时间（ISO 格式）"""
+  timestamp: String!
+}
+
+"""登录结果"""
+type LoginResult {
+  """访问令牌"""
+  accessToken: String!
+
+  """用户 ID"""
+  accountId: Int!
+
+  """刷新令牌"""
+  refreshToken: String!
+
+  """用户默认角色"""
+  role: IdentityTypeEnum!
+
+  """用户信息"""
+  userInfo: UserInfoDTO
+}
+
+enum LoginTypeEnum {
+  PASSWORD
+  SMS
+  WECHAT
+}
+
+type MagicItemCraftTaskDetail {
+  createdAt: DateTime!
+  failureReason: String
+  id: Int!
+  itemName: String!
+  itemType: MagicItemType!
+  qualityLevel: String
+  resultDescription: String
+  status: String!
+  updatedAt: DateTime!
+}
+
+type MagicItemCraftTaskResult {
+  createdAt: DateTime!
+  id: Int!
+  itemName: String!
+  jobId: String!
+  status: String!
+  traceId: String!
+}
+
+enum MagicItemType {
+  ARMOR
+  TOOL
+  TOY
+  WEAPON
+}
+
+type Mutation {
+  adminApproveComment(id: Float!): Boolean!
+  adminCreateCategory(input: CreateCategoryInput!): CategoryDTO
+  adminCreateLink(input: CreateLinkInput!): LinkDTO
+  adminCreatePost(input: CreatePostInput!): PostDTO
+  adminCreateTag(input: CreateTagInput!): TagDTO
+  adminDeleteCategory(id: Float!): Boolean!
+  adminDeleteComment(id: Float!): Boolean!
+  adminDeleteLink(id: Float!): Boolean!
+  adminDeletePost(id: Float!): Boolean!
+  adminDeleteTag(id: Float!): Boolean!
+  adminUpdateCategory(input: UpdateCategoryInput!): CategoryDTO
+  adminUpdateComment(input: UpdateCommentInput!): CommentDTO
+  adminUpdateConfig(input: UpdateConfigInput!): ConfigDTO
+  adminUpdateLink(input: UpdateLinkInput!): LinkDTO
+  adminUpdatePost(input: UpdatePostInput!): PostDTO
+  adminUpdateTag(input: UpdateTagInput!): TagDTO
+  approveComment(id: Float!): Boolean!
+
+  """绑定第三方账户"""
+  bindThirdParty(input: BindThirdPartyInput!): ThirdPartyAuthDTO!
+
+  """消费验证记录"""
+  consumeVerificationRecord(input: ConsumeVerificationRecordInput!): UpdateVerificationRecordResult!
+  createCategory(input: CreateCategoryInput!): CategoryDTO
+  createComment(input: CreateCommentInput!): CommentDTO
+  createLink(input: CreateLinkInput!): LinkDTO
+  createMagicItemCraftTask(input: CreateMagicItemCraftTaskInput!): MagicItemCraftTaskResult!
+  createPost(input: CreatePostInput!): PostDTO
+  createTag(input: CreateTagInput!): TagDTO
+
+  """创建验证记录"""
+  createVerificationRecord(input: CreateVerificationRecordInput!): CreateVerificationRecordResult!
+  deleteCategory(id: Float!): Boolean!
+  deleteLink(id: Float!): Boolean!
+  deletePost(id: Float!): Boolean!
+  deleteTag(id: Float!): Boolean!
+
+  """生成微信小程序二维码"""
+  generateWeappQrcode(input: GenerateWeappQrcodeInput!): GenerateWeappQrcodeResultDTO!
+
+  """获取微信小程序手机号"""
+  getWeappPhone(input: GetWeappPhoneInput!): WeappPhoneResultDTO!
+  login(input: AuthLoginInput!): LoginResult!
+
+  """将 AI 向量化请求加入队列"""
+  queueAiEmbed(input: QueueAiEmbedInput!): QueueAiResult!
+
+  """将 AI 生成请求加入队列"""
+  queueAiGenerate(input: QueueAiGenerateInput!): QueueAiResult!
+
+  """将邮件投递请求加入队列"""
+  queueEmail(input: QueueEmailInput!): QueueEmailResult!
+
+  """用户注册"""
+  register(input: RegisterInput!): RegisterResult!
+  resetPassword(input: ResetPasswordInput!): ResetPasswordResult!
+
+  """撤销验证记录"""
+  revokeVerificationRecord(input: RevokeVerificationRecordInput!): UpdateVerificationRecordResult!
+
+  """第三方登录"""
+  thirdPartyLogin(input: ThirdPartyLoginInput!): LoginResult!
+
+  """第三方注册"""
+  thirdPartyRegister(input: ThirdPartyRegisterInput!): RegisterResult!
+
+  """解绑第三方账户"""
+  unbindThirdParty(input: UnbindThirdPartyInput!): Boolean!
+  updateAccessGroup(input: UpdateAccessGroupInput!): UpdateAccessGroupResult!
+  updateCategory(input: UpdateCategoryInput!): CategoryDTO
+  updateComment(input: UpdateCommentInput!): CommentDTO
+  updateConfig(input: UpdateConfigInput!): ConfigDTO
+  updateLink(input: UpdateLinkInput!): LinkDTO
+  updatePost(input: UpdatePostInput!): PostDTO
+  updateTag(input: UpdateTagInput!): TagDTO
+  updateUserInfo(input: UpdateUserInfoInput!): UpdateUserInfoResult!
+}
+
+type PostDTO {
+  categoryId: Float
+  categoryName: String
+  commentCount: Float!
+  content: String!
+  coverImage: String
+  createdAt: DateTime!
+  excerpt: String
+  id: Float!
+  isSticky: Boolean!
+  likeCount: Float!
+  publishedAt: DateTime
+  slug: String!
+  status: String!
+  tags: [TagDTO!]!
+  title: String!
+  updatedAt: DateTime!
+  viewCount: Float!
+  visibility: String!
+}
+
+type PostListResult {
+  page: Float!
+  pageSize: Float!
+  posts: [PostDTO!]!
+  total: Float!
+}
+
+enum PostStatus {
+  ARCHIVED
+  DELETED
+  DRAFT
+  PUBLISHED
+}
+
+enum PostVisibility {
+  PRIVATE
+  PROTECTED
+  PUBLIC
+}
+
+"""公开验证记录"""
+type PublicVerificationRecordDTO {
+  """过期时间"""
+  expiresAt: DateTime!
+
+  """验证记录 ID"""
+  id: Int!
+
+  """生效时间"""
+  notBefore: DateTime
+
+  """公开载荷数据"""
+  publicPayload: JSON
+
+  """记录状态"""
+  status: VerificationRecordStatus!
+
+  """主体 ID"""
+  subjectId: Int
+
+  """主体类型"""
+  subjectType: SubjectType
+
+  """记录类型"""
+  type: VerificationRecordType!
+}
+
+type Query {
+  """根据 ID 查询账户详细信息"""
+  account(
+    """账户 ID"""
+    id: Int!
+  ): UserAccountDTO!
+  adminArchiveStats: [ArchiveStatsDTO!]!
+  adminBlogStats: BlogStatsDTO!
+  adminCategories: [CategoryDTO!]!
+  adminComments(page: Int, pageSize: Int, postId: Int, status: CommentStatus): [CommentDTO!]!
+  adminConfig: [ConfigDTO!]!
+  adminLinks: [LinkDTO!]!
+  adminPost(id: Float!): PostDTO
+  adminPosts(categoryId: Int, page: Int, pageSize: Int, search: String, sortBy: String, sortOrder: String, status: PostStatus, tagId: Int): PostListResult!
+  adminTags: [TagDTO!]!
+  archiveStats: [ArchiveStatsDTO!]!
+  basicUserInfo(accountId: Int!): BasicUserInfoDTO!
+  blogStats: BlogStatsDTO!
+  categories: [CategoryDTO!]!
+  category(slug: String!): CategoryDTO
+  config: [ConfigDTO!]!
+
+  """内部调试审计：按 queueName 与 jobId 查询单任务记录"""
+  debugAsyncTaskRecordByQueueJob(input: DebugAsyncTaskRecordByQueueJobInput!): AsyncTaskRecordDebugType
+
+  """内部调试审计：按 bizType 与 bizKey 查询异步任务记录"""
+  debugAsyncTaskRecordsByBizTarget(input: DebugAsyncTaskRecordsByBizTargetInput!): AsyncTaskRecordDebugListResult!
+
+  """内部调试审计：按 traceId 查询异步任务链路"""
+  debugAsyncTaskRecordsByTraceId(input: DebugAsyncTaskRecordsByTraceIdInput!): AsyncTaskRecordDebugListResult!
+
+  """查找验证记录"""
+  findVerificationRecord(input: FindVerificationRecordInput!): PublicVerificationRecordDTO
+  links: [LinkDTO!]!
+  magicItemCraftTask(
+    """任务ID（jobId）"""
+    id: String!
+  ): MagicItemCraftTaskDetail
+
+  """获取我的第三方绑定列表"""
+  myThirdPartyAuths: [ThirdPartyAuthDTO!]!
+  nextPost(currentId: Float!): PostDTO
+  post(id: Int!): PostDTO
+  postBySlug(slug: String!): PostDTO
+  postComments(postId: Float!): [CommentDTO!]!
+  posts(categoryId: Int, page: Int, pageSize: Int, search: String, sortBy: String, sortOrder: String, status: PostStatus, tagId: Int): PostListResult!
+  previousPost(currentId: Float!): PostDTO
+  stickyPosts: [PostDTO!]!
+  tag(slug: String!): TagDTO
+  tags: [TagDTO!]!
+  userInfo(accountId: Int!): UserInfoDTO!
+}
+
+input QueueAiEmbedInput {
+  """幂等键"""
+  dedupKey: String
+
+  """扩展元数据"""
+  metadata: JSON
+
+  """模型名称"""
+  model: String!
+
+  """向量化文本"""
+  text: String!
+
+  """链路追踪 ID"""
+  traceId: String
+}
+
+input QueueAiGenerateInput {
+  """幂等键"""
+  dedupKey: String
+
+  """扩展元数据"""
+  metadata: JSON
+
+  """模型名称"""
+  model: String!
+
+  """生成提示词"""
+  prompt: String!
+
+  """AI 提供方"""
+  provider: String
+
+  """链路追踪 ID"""
+  traceId: String
+}
+
+type QueueAiResult {
+  """队列任务 ID"""
+  jobId: String!
+
+  """是否已成功入队"""
+  queued: Boolean!
+
+  """链路追踪 ID"""
+  traceId: String!
+}
+
+input QueueEmailInput {
+  """幂等键"""
+  dedupKey: String
+
+  """HTML 内容"""
+  html: String
+
+  """扩展元数据"""
+  meta: JSON
+
+  """邮件主题"""
+  subject: String!
+
+  """模板 ID"""
+  templateId: String
+
+  """纯文本内容"""
+  text: String
+
+  """收件邮箱地址"""
+  to: String!
+
+  """链路追踪 ID"""
+  traceId: String
+}
+
+type QueueEmailResult {
+  """队列任务 ID"""
+  jobId: String!
+
+  """是否已成功入队"""
+  queued: Boolean!
+
+  """链路追踪 ID"""
+  traceId: String!
+}
+
+input RegisterInput {
+  """邀请令牌"""
+  inviteToken: String
+
+  """登录邮箱"""
+  loginEmail: String!
+
+  """登录名"""
+  loginName: String
+
+  """登录密码"""
+  loginPassword: String!
+
+  """昵称"""
+  nickname: String
+
+  """注册类型"""
+  type: RegisterTypeEnum! = REGISTRANT
+}
+
+"""用户注册结果"""
+type RegisterResult {
+  """创建的账户 ID"""
+  accountId: Int
+
+  """注册结果消息"""
+  message: String!
+
+  """注册是否成功"""
+  success: Boolean!
+}
+
+enum RegisterTypeEnum {
+  REGISTRANT
+  STAFF
+}
+
+input ResetPasswordInput {
+  """新密码"""
+  newPassword: String!
+
+  """验证 token"""
+  token: String!
+}
+
+type ResetPasswordResult {
+  """重置密码的账户 ID"""
+  accountId: Int
+
+  """消息"""
+  message: String
+
+  """是否成功"""
+  success: Boolean!
+}
+
+"""撤销验证记录输入参数"""
+input RevokeVerificationRecordInput {
+  """验证记录 ID"""
+  recordId: Int!
+}
+
+enum SubjectType {
+  ACCOUNT
+}
+
+type TagDTO {
+  createdAt: DateTime!
+  description: String
+  id: Float!
+  name: String!
+  postCount: Float!
+  slug: String!
+  updatedAt: DateTime!
+}
+
+"""第三方登录绑定信息输出类型"""
+type ThirdPartyAuthDTO {
+  """关联账号 ID"""
+  accountId: Float!
+
+  """创建时间"""
+  createdAt: DateTime!
+
+  """主键"""
+  id: Int!
+
+  """第三方平台类型"""
+  provider: ThirdPartyProviderEnum!
+
+  """平台返回的用户唯一标识"""
+  providerUserId: String!
+
+  """联合 ID，如微信的 unionid"""
+  unionId: String
+
+  """更新时间"""
+  updatedAt: DateTime!
+}
+
+input ThirdPartyLoginInput {
+  """客户端类型"""
+  audience: AudienceTypeEnum!
+
+  """第三方平台返回的登录凭证，如授权码 code 或访问令牌 token"""
+  authCredential: String!
+
+  """客户端 IP 地址"""
+  ip: String
+
+  """第三方平台类型（当前仅支持 WeApp）"""
+  provider: ThirdPartyLoginProviderEnum!
+}
+
+enum ThirdPartyLoginProviderEnum {
+  WEAPP
+}
+
+enum ThirdPartyProviderEnum {
+  GITHUB
+  GOOGLE
+  QQ
+  WEAPP
+  WECHAT
+}
+
+input ThirdPartyRegisterInput {
+  """客户端类型"""
+  audience: AudienceTypeEnum!
+
+  """第三方平台返回的登录凭证，如授权码 code 或访问令牌 token"""
+  authCredential: String!
+
+  """用户邮箱（可选）"""
+  email: String
+
+  """第三方平台类型"""
+  provider: ThirdPartyProviderEnum!
+
+  """微信小程序特定数据"""
+  weAppData: WeAppExtensionInput
+}
+
+input UnbindThirdPartyInput {
+  """第三方登录绑定记录 ID"""
+  id: Int
+
+  """第三方平台类型"""
+  provider: ThirdPartyProviderEnum
+}
+
+input UpdateAccessGroupInput {
+  """访问组"""
+  accessGroup: [IdentityTypeEnum!]!
+
+  """目标账户 ID"""
+  accountId: Float!
+
+  """身份提示"""
+  identityHint: IdentityTypeEnum
+}
+
+type UpdateAccessGroupResult {
+  """访问组"""
+  accessGroup: [IdentityTypeEnum!]!
+
+  """账户 ID"""
+  accountId: Float!
+
+  """身份提示"""
+  identityHint: IdentityTypeEnum!
+
+  """是否发生更新（幂等）"""
+  isUpdated: Boolean!
+}
+
+input UpdateCategoryInput {
+  description: String
+  id: Int!
+  isActive: Boolean
+  name: String
+  parentId: Int
+  slug: String
+  sortOrder: Int
+}
+
+input UpdateCommentInput {
+  content: String
+  id: Int!
+  status: CommentStatus
+}
+
+input UpdateConfigInput {
+  description: String
+  key: String!
+  value: String
+}
+
+input UpdateLinkInput {
+  avatar: String
+  description: String
+  id: Int!
+  isActive: Boolean
+  name: String
+  sortOrder: Int
+  url: String
+}
+
+input UpdatePostInput {
+  categoryId: Int
+  content: String
+  coverImage: String
+  excerpt: String
+  id: Int!
+  isSticky: Boolean
+  slug: String
+  status: PostStatus
+  tagIds: [Int!]
+  title: String
+  visibility: PostVisibility
+}
+
+input UpdateTagInput {
+  description: String
+  id: Int!
+  name: String
+  slug: String
+}
+
+input UpdateUserInfoInput {
+  """目标账户 ID（不传则默认当前登录用户）"""
+  accountId: Float
+
+  """地址"""
+  address: String
+
+  """头像 URL"""
+  avatarUrl: String
+
+  """出生日期（YYYY-MM-DD）"""
+  birthDate: String
+
+  """邮箱"""
+  email: String
+
+  """性别"""
+  gender: Gender
+
+  """地理位置信息 { province, city }"""
+  geographic: JSON
+
+  """登录提示身份"""
+  identityHint: IdentityTypeEnum
+
+  """昵称"""
+  nickname: String
+
+  """电话"""
+  phone: String
+
+  """个性签名"""
+  signature: String
+
+  """标签"""
+  tags: [String!]
+
+  """账户状态（仅管理员或工作人员可修改）"""
+  userState: UserState
+}
+
+type UpdateUserInfoResult {
+  """是否发生更新（幂等）"""
+  isUpdated: Boolean!
+
+  """更新后的用户信息视图"""
+  userInfo: UserInfoDTO!
+}
+
+"""更新验证记录结果"""
+type UpdateVerificationRecordResult {
+  """更新后的验证记录数据"""
+  data: VerificationRecordDTO
+
+  """错误信息"""
+  message: String
+
+  """操作是否成功"""
+  success: Boolean!
+}
+
+"""用户账户表数据传输对象"""
+type UserAccountDTO {
+  """创建时间"""
+  createdAt: DateTime!
+
+  """账户 ID"""
+  id: Int!
+
+  """身份类型提示"""
+  identityHint: String
+
+  """登录邮箱"""
+  loginEmail: String
+
+  """登录名"""
+  loginName: String
+
+  """最近登录历史"""
+  recentLoginHistory: [LoginHistoryItem!]
+
+  """账户状态"""
+  status: AccountStatus!
+
+  """更新时间"""
+  updatedAt: DateTime!
+}
+
+"""用户信息"""
+type UserInfoDTO {
+  """用户访问组"""
+  accessGroup: [IdentityTypeEnum!]!
+
+  """关联的账户 ID"""
+  accountId: Float!
+
+  """地址"""
+  address: String
+
+  """头像 URL"""
+  avatarUrl: String
+
+  """出生日期"""
+  birthDate: String
+
+  """创建时间"""
+  createdAt: DateTime!
+
+  """邮箱"""
+  email: String
+
+  """性别"""
+  gender: Gender!
+
+  """地理位置信息"""
+  geographic: String
+
+  """用户信息 ID"""
+  id: ID!
+
+  """昵称"""
+  nickname: String!
+
+  """通知数"""
+  notifyCount: Float!
+
+  """电话"""
+  phone: String
+
+  """个性签名"""
+  signature: String
+
+  """标签"""
+  tags: [String!]
+
+  """未读通知数"""
+  unreadCount: Float!
+
+  """更新时间"""
+  updatedAt: DateTime!
+
+  """用户状态"""
+  userState: UserState!
+}
+
+enum UserState {
+  ACTIVE
+  INACTIVE
+  PENDING
+  SUSPENDED
+}
+
+"""验证记录"""
+type VerificationRecordDTO {
+  """消费时间"""
+  consumedAt: DateTime
+
+  """消费者账号 ID"""
+  consumedByAccountId: Int
+
+  """创建时间"""
+  createdAt: DateTime!
+
+  """过期时间"""
+  expiresAt: DateTime!
+
+  """验证记录 ID"""
+  id: Int!
+
+  """签发者账号 ID"""
+  issuedByAccountId: Int
+
+  """生效时间"""
+  notBefore: DateTime
+
+  """载荷数据"""
+  payload: JSON
+
+  """记录状态"""
+  status: VerificationRecordStatus!
+
+  """主体 ID"""
+  subjectId: Int
+
+  """主体类型"""
+  subjectType: SubjectType
+
+  """目标账号 ID"""
+  targetAccountId: Int
+
+  """记录类型"""
+  type: VerificationRecordType!
+
+  """更新时间"""
+  updatedAt: DateTime!
+}
+
+enum VerificationRecordStatus {
+  ACTIVE
+  CONSUMED
+  EXPIRED
+  REVOKED
+}
+
+enum VerificationRecordType {
+  EMAIL_VERIFY_CODE
+  EMAIL_VERIFY_LINK
+  PASSWORD_RESET
+  SMS_VERIFY_CODE
+}
+
+input WeAppExtensionInput {
+  """微信小程序获取手机号的动态令牌"""
+  phoneCode: String
+}
+
+type WeappPhoneResultDTO {
+  """区号"""
+  countryCode: String!
+
+  """手机号码"""
+  phoneNumber: String!
+
+  """不带区号的手机号"""
+  purePhoneNumber: String!
+}

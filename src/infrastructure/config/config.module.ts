@@ -239,7 +239,7 @@ const graphqlConfig = () => {
 
   return {
     graphql: {
-      schemaDestination: 'src/schema.graphql',
+      schemaDestination: './schema.gql',
       introspection: introspectionEnabled,
       playground: sandboxEnabled,
       sortSchema: true,

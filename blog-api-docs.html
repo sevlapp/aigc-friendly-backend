@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIGC 博客 - GraphQL API 文档</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a2e; color: #e0e0e0; }
+    
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; }
+    .header h1 { color: white; font-size: 32px; margin-bottom: 10px; }
+    .header p { color: rgba(255,255,255,0.8); font-size: 16px; }
+    
+    .container { max-width: 1400px; margin: 0 auto; padding: 30px; }
+    
+    .section { background: #16213e; border-radius: 12px; margin-bottom: 30px; overflow: hidden; }
+    .section-header { background: #0f3460; padding: 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+    .section-header h2 { color: #667eea; font-size: 20px; }
+    .section-header .toggle { color: #667eea; font-size: 24px; }
+    .section-content { padding: 20px; display: block; }
+    .section.collapsed .section-content { display: none; }
+    .section.collapsed .toggle { transform: rotate(-90deg); }
+    
+    .api-item { background: #1f4068; border-radius: 8px; padding: 20px; margin-bottom: 15px; }
+    .api-item h3 { color: #00d9ff; font-size: 16px; margin-bottom: 10px; }
+    .api-item .method { display: inline-block; background: #667eea; color: white; padding: 3px 10px; border-radius: 4px; font-size: 12px; margin-right: 10px; }
+    .api-item .method.query { background: #42b983; }
+    .api-item .method.mutation { background: #e96868; }
+    .api-item pre { background: #0d1b2a; padding: 15px; border-radius: 6px; overflow-x: auto; font-size: 13px; color: #a0e0ff; margin-top: 10px; }
+    .api-item .desc { color: #888; font-size: 13px; margin-top: 8px; }
+    
+    .type-def { background: #1f4068; border-radius: 8px; padding: 15px; margin-bottom: 10px; }
+    .type-def h4 { color: #ff9500; font-size: 15px; margin-bottom: 8px; }
+    .type-def code { background: #0d1b2a; color: #00d9ff; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+    .type-def .fields { padding-left: 20px; }
+    .type-def .field { color: #888; font-size: 13px; padding: 4px 0; }
+    .type-def .field-name { color: #a0e0ff; }
+    .type-def .field-type { color: #42b983; }
+    
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: #16213e; border-radius: 8px; padding: 20px; text-align: center; border-left: 4px solid #667eea; }
+    .stat-card .number { font-size: 36px; font-weight: bold; color: #667eea; }
+    .stat-card .label { color: #888; font-size: 14px; margin-top: 5px; }
+    
+    .sidebar { position: fixed; right: 0; top: 0; width: 300px; height: 100vh; background: #0f3460; padding: 20px; overflow-y: auto; }
+    .sidebar h3 { color: #667eea; margin-bottom: 15px; font-size: 16px; }
+    .sidebar ul { list-style: none; }
+    .sidebar li { padding: 8px 0; }
+    .sidebar a { color: #e0e0e0; text-decoration: none; font-size: 14px; }
+    .sidebar a:hover { color: #667eea; }
+    
+    .content { margin-right: 320px; }
+    
+    .code-block { background: #0d1b2a; border-radius: 8px; padding: 20px; margin: 20px 0; overflow-x: auto; }
+    .code-block code { color: #a0e0ff; font-family: 'Monaco', 'Menlo', monospace; font-size: 13px; line-height: 1.6; }
+    .code-block .keyword { color: #ff79c6; }
+    .code-block .string { color: #f1fa8c; }
+    .code-block .number { color: #bd93f9; }
+    .code-block .comment { color: #6272a4; }
+    .code-block .type { color: #8be9fd; }
+    
+    .endpoint { display: flex; align-items: center; margin-bottom: 15px; padding: 15px; background: #1f4068; border-radius: 8px; }
+    .endpoint .method { background: #667eea; color: white; padding: 5px 12px; border-radius: 4px; font-size: 12px; margin-right: 15px; }
+    .endpoint .method.post { background: #42b983; }
+    .endpoint .url { color: #a0e0ff; font-family: monospace; }
+    
+    .try-section { background: #1f4068; border-radius: 8px; padding: 20px; margin-top: 20px; }
+    .try-section h4 { color: #00d9ff; margin-bottom: 15px; }
+    .try-section textarea { width: 100%; height: 150px; background: #0d1b2a; color: #a0e0ff; border: 1px solid #333; border-radius: 6px; padding: 15px; font-family: monospace; font-size: 13px; resize: vertical; }
+    .try-section button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 30px; border-radius: 6px; cursor: pointer; font-size: 14px; margin-top: 15px; }
+    .try-section button:hover { opacity: 0.9; }
+    .try-section .response { background: #0d1b2a; padding: 15px; border-radius: 6px; margin-top: 15px; font-family: monospace; font-size: 13px; color: #42b983; white-space: pre-wrap; }
+    
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .content { margin-right: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>AIGC 博客 GraphQL API</h1>
+    <p>基于 AIGC-Friendly-Backend 框架的博客系统后端 API</p>
+  </div>
+  
+  <div class="sidebar">
+    <h3>API 索引</h3>
+    <ul>
+      <li><a href="#queries">查询接口 (Queries)</a></li>
+      <li><a href="#mutations">变更接口 (Mutations)</a></li>
+      <li><a href="#types">数据类型 (Types)</a></li>
+      <li><a href="#enums">枚举类型 (Enums)</a></li>
+      <li><a href="#stats">统计数据</a></li>
+    </ul>
+    
+    <h3 style="margin-top: 30px;">快速测试</h3>
+    <p style="color: #888; font-size: 13px; margin-bottom: 15px;">在本地运行后端后访问：</p>
+    <code style="color: #00d9ff; font-size: 12px;">http://localhost:3000/graphql</code>
+  </div>
+  
+  <div class="content">
+    <div class="container">
+      
+      <!-- Stats Overview -->
+      <div class="stats">
+        <div class="stat-card">
+          <div class="number">20</div>
+          <div class="label">Query 接口</div>
+        </div>
+        <div class="stat-card">
+          <div class="number">18</div>
+          <div class="label">Mutation 接口</div>
+        </div>
+        <div class="stat-card">
+          <div class="number">12</div>
+          <div class="label">数据类型</div>
+        </div>
+        <div class="stat-card">
+          <div class="number">5</div>
+          <div class="label">枚举类型</div>
+        </div>
+      </div>
+      
+      <!-- GraphQL Endpoint -->
+      <div class="section">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h2>GraphQL 端点</h2>
+          <span class="toggle">▼</span>
+        </div>
+        <div class="section-content">
+          <div class="endpoint">
+            <span class="method post">POST</span>
+            <span class="url">http://localhost:3000/graphql</span>
+          </div>
+          <p style="color: #888; margin-bottom: 15px;">使用 POST 请求发送 GraphQL 查询，Content-Type 为 application/json</p>
+          <div class="code-block">
+            <code>
+<span class="comment">// 请求示例</span>
+{
+  <span class="keyword">"query"</span>: <span class="string">"{ posts { id title } }"</span>,
+  <span class="keyword">"variables"</span>: {}
+}
+            </code>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Query APIs -->
+      <div class="section" id="queries">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h2>查询接口 (Queries)</h2>
+          <span class="toggle">▼</span>
+        </div>
+        <div class="section-content">
+          
+          <div class="api-item">
+            <h3><span class="method query">Query</span> 获取文章详情</h3>
+            <p class="desc">通过文章ID获取文章详情</p>
+            <pre>post(id: Int!): Post</pre>
+            <div class="try-section">
+              <h4>示例查询</h4>
+              <textarea id="query1">query {
+  post(id: 1) {
+    id
+    title
+    slug
+    content
+    viewCount
+    likeCount
+    createdAt
+    tags {
+      name
+    }
+  }
+}</textarea>
+              <button onclick="copyToClipboard('query1')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method query">Query</span> 通过 Slug 获取文章</h3>
+            <p class="desc">通过文章别名获取文章详情</p>
+            <pre>postBySlug(slug: String!): Post</pre>
+            <div class="try-section">
+              <h4>示例查询</h4>
+              <textarea id="query2">query {
+  postBySlug(slug: "typescript-types") {
+    id
+    title
+    content
+    categoryId
+    tags {
+      id
+      name
+    }
+  }
+}</textarea>
+              <button onclick="copyToClipboard('query2')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method query">Query</span> 文章列表</h3>
+            <p class="desc">分页获取文章列表，支持分类、标签、搜索过滤</p>
+            <pre>posts(
+  page: Int
+  pageSize: Int
+  categoryId: Int
+  tagId: Int
+  status: PostStatus
+  search: String
+  sortBy: String
+  sortOrder: String
+): PostListResult!</pre>
+            <div class="try-section">
+              <h4>示例查询</h4>
+              <textarea id="query3">query {
+  posts(page: 1, pageSize: 10) {
+    posts {
+      id
+      title
+      excerpt
+      viewCount
+      likeCount
+      tags {
+        name
+      }
+    }
+    total
+    page
+    pageSize
+  }
+}</textarea>
+              <button onclick="copyToClipboard('query3')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method query">Query</span> 置顶文章</h3>
+            <p class="desc">获取所有置顶文章</p>
+            <pre>stickyPosts: [Post!]!</pre>
+            <div class="try-section">
+              <h4>示例查询</h4>
+              <textarea id="query4">query {
+  stickyPosts {
+    id
+    title
+    slug
+    excerpt
+  }
+}</textarea>
+              <button onclick="copyToClipboard('query4')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method query">Query</span> 上一篇/下一篇</h3>
+            <p class="desc">获取当前文章的上一篇或下一篇文章</p>
+            <pre>nextPost(currentId: Int!): Post
+previousPost(currentId: Int!): Post</pre>
+            <div class="try-section">
+              <h4>示例查询</h4>
+              <textarea id="query5">query {
+  nextPost(currentId: 1) {
+    id
+    title
+    slug
+  }
+  previousPost(currentId: 1) {
+    id
+    title
+    slug
+  }
+}</textarea>
+              <button onclick="copyToClipboard('query5')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method query">Query</span> 分类列表</h3>
+            <p class="desc">获取所有文章分类</p>
+            <pre>categories: [Category!]!
+category(slug: String!): Category</pre>
+            <div class="try-section">
+              <h4>示例查询</h4>
+              <textarea id="query6">query {
+  categories {
+    id
+    name
+    slug
+    postCount
+  }
+}</textarea>
+              <button onclick="copyToClipboard('query6')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method query">Query</span> 标签列表</h3>
+            <p class="desc">获取所有文章标签</p>
+            <pre>tags: [Category!]!
+tag(slug: String!): Comment</pre>
+            <div class="try-section">
+              <h4>示例查询</h4>
+              <textarea id="query7">query {
+  tags {
+    id
+    name
+    slug
+    postCount
+  }
+}</textarea>
+              <button onclick="copyToClipboard('query7')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method query">Query</span> 文章评论</h3>
+            <p class="desc">获取某篇文章的所有评论（支持楼中楼嵌套）</p>
+            <pre>postComments(postId: Int!): [Comment!]!</pre>
+            <div class="try-section">
+              <h4>示例查询</h4>
+              <textarea id="query8">query {
+  postComments(postId: 1) {
+    id
+    authorName
+    content
+    createdAt
+    replies {
+      id
+      authorName
+      content
+    }
+  }
+}</textarea>
+              <button onclick="copyToClipboard('query8')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method query">Query</span> 博客统计</h3>
+            <p class="desc">获取博客基础统计数据</p>
+            <pre>blogStats: BlogStats!</pre>
+            <div class="try-section">
+              <h4>示例查询</h4>
+              <textarea id="query9">query {
+  blogStats {
+    totalPosts
+    totalComments
+    totalViews
+    totalLikes
+    publishedPosts
+    pendingComments
+  }
+}</textarea>
+              <button onclick="copyToClipboard('query9')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method query">Query</span> 时间归档</h3>
+            <p class="desc">按年月统计文章数量</p>
+            <pre>archiveStats: [ArchiveStats!]!</pre>
+            <div class="try-section">
+              <h4>示例查询</h4>
+              <textarea id="query10">query {
+  archiveStats {
+    year
+    month
+    count
+  }
+}</textarea>
+              <button onclick="copyToClipboard('query10')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method query">Query</span> 友情链接</h3>
+            <p class="desc">获取所有已激活的友情链接</p>
+            <pre>links: [Link!]!</pre>
+            <div class="try-section">
+              <h4>示例查询</h4>
+              <textarea id="query11">query {
+  links {
+    id
+    name
+    url
+    description
+    avatar
+  }
+}</textarea>
+              <button onclick="copyToClipboard('query11')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method query">Query</span> 系统配置</h3>
+            <p class="desc">获取博客系统配置</p>
+            <pre>config: [Config!]!</pre>
+            <div class="try-section">
+              <h4>示例查询</h4>
+              <textarea id="query12">query {
+  config {
+    key
+    value
+    description
+  }
+}</textarea>
+              <button onclick="copyToClipboard('query12')">复制</button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+      <!-- Mutation APIs -->
+      <div class="section" id="mutations">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h2>变更接口 (Mutations)</h2>
+          <span class="toggle">▼</span>
+        </div>
+        <div class="section-content">
+          
+          <div class="api-item">
+            <h3><span class="method mutation">Mutation</span> 创建文章</h3>
+            <p class="desc">创建新的博客文章</p>
+            <pre>createPost(input: CreatePostInput!): Post</pre>
+            <div class="try-section">
+              <h4>示例 Mutation</h4>
+              <textarea id="mut1">mutation {
+  createPost(input: {
+    title: "我的第一篇文章"
+    slug: "my-first-post"
+    content: "# 标题\n\n这是文章内容..."
+    status: DRAFT
+    visibility: PUBLIC
+    isSticky: false
+  }) {
+    id
+    title
+    slug
+  }
+}</textarea>
+              <button onclick="copyToClipboard('mut1')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method mutation">Mutation</span> 更新文章</h3>
+            <p class="desc">更新已有文章</p>
+            <pre>updatePost(input: UpdatePostInput!): Post</pre>
+            <div class="try-section">
+              <h4>示例 Mutation</h4>
+              <textarea id="mut2">mutation {
+  updatePost(input: {
+    id: 1
+    title: "更新后的标题"
+    status: PUBLISHED
+  }) {
+    id
+    title
+    status
+  }
+}</textarea>
+              <button onclick="copyToClipboard('mut2')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method mutation">Mutation</span> 删除文章</h3>
+            <p class="desc">软删除文章（放入回收站）</p>
+            <pre>deletePost(id: Int!): Boolean!</pre>
+            <div class="try-section">
+              <h4>示例 Mutation</h4>
+              <textarea id="mut3">mutation {
+  deletePost(id: 1)
+}</textarea>
+              <button onclick="copyToClipboard('mut3')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method mutation">Mutation</span> 增加阅读量</h3>
+            <p class="desc">文章阅读数+1</p>
+            <pre>incrementPostView(postId: Int!): Boolean!</pre>
+            <div class="try-section">
+              <h4>示例 Mutation</h4>
+              <textarea id="mut4">mutation {
+  incrementPostView(postId: 1)
+}</textarea>
+              <button onclick="copyToClipboard('mut4')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method mutation">Mutation</span> 文章点赞</h3>
+            <p class="desc">文章点赞数+1</p>
+            <pre>incrementPostLike(postId: Int!): Boolean!</pre>
+            <div class="try-section">
+              <h4>示例 Mutation</h4>
+              <textarea id="mut5">mutation {
+  incrementPostLike(postId: 1)
+}</textarea>
+              <button onclick="copyToClipboard('mut5')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method mutation">Mutation</span> 创建评论</h3>
+            <p class="desc">对文章发表评论</p>
+            <pre>createComment(input: CreateCommentInput!): Comment</pre>
+            <div class="try-section">
+              <h4>示例 Mutation</h4>
+              <textarea id="mut6">mutation {
+  createComment(input: {
+    postId: 1
+    authorName: "访客用户"
+    authorEmail: "visitor@example.com"
+    content: "这是一条评论内容"
+  }) {
+    id
+    authorName
+    content
+    status
+  }
+}</textarea>
+              <button onclick="copyToClipboard('mut6')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method mutation">Mutation</span> 更新评论</h3>
+            <p class="desc">更新评论内容或状态</p>
+            <pre>updateComment(input: UpdateCommentInput!): Comment</pre>
+            <div class="try-section">
+              <h4>示例 Mutation</h4>
+              <textarea id="mut7">mutation {
+  updateComment(input: {
+    id: 1
+    content: "修改后的评论内容"
+    status: APPROVED
+  }) {
+    id
+    content
+    status
+  }
+}</textarea>
+              <button onclick="copyToClipboard('mut7')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method mutation">Mutation</span> 审核评论</h3>
+            <p class="desc">通过评论审核</p>
+            <pre>approveComment(id: Int!): Boolean!</pre>
+            <div class="try-section">
+              <h4>示例 Mutation</h4>
+              <textarea id="mut8">mutation {
+  approveComment(id: 1)
+}</textarea>
+              <button onclick="copyToClipboard('mut8')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method mutation">Mutation</span> 评论点赞</h3>
+            <p class="desc">评论点赞数+1</p>
+            <pre>incrementCommentLike(commentId: Int!): Boolean!</pre>
+            <div class="try-section">
+              <h4>示例 Mutation</h4>
+              <textarea id="mut9">mutation {
+  incrementCommentLike(commentId: 1)
+}</textarea>
+              <button onclick="copyToClipboard('mut9')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method mutation">Mutation</span> 创建分类</h3>
+            <p class="desc">创建新的文章分类</p>
+            <pre>createCategory(input: CreateCategoryInput!): Category</pre>
+            <div class="try-section">
+              <h4>示例 Mutation</h4>
+              <textarea id="mut10">mutation {
+  createCategory(input: {
+    name: "前端开发"
+    slug: "frontend"
+    description: "前端技术相关文章"
+    sortOrder: 1
+    isActive: true
+  }) {
+    id
+    name
+    slug
+  }
+}</textarea>
+              <button onclick="copyToClipboard('mut10')">复制</button>
+            </div>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method mutation">Mutation</span> 更新/删除分类</h3>
+            <p class="desc">更新或删除文章分类</p>
+            <pre>updateCategory(input: UpdateCategoryInput!): Category
+deleteCategory(id: Int!): Boolean!</pre>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method mutation">Mutation</span> 创建/更新/删除标签</h3>
+            <p class="desc">管理文章标签</p>
+            <pre>createTag(input: CreateTagInput!): Category
+updateTag(input: UpdateTagInput!): Category
+deleteTag(id: Int!): Boolean!</pre>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method mutation">Mutation</span> 创建/更新/删除链接</h3>
+            <p class="desc">管理友情链接</p>
+            <pre>createLink(input: CreateLinkInput!): Link
+updateLink(input: UpdateLinkInput!): Link
+deleteLink(id: Int!): Boolean!</pre>
+          </div>
+          
+          <div class="api-item">
+            <h3><span class="method mutation">Mutation</span> 更新配置</h3>
+            <p class="desc">更新系统配置项</p>
+            <pre>updateConfig(input: UpdateConfigInput!): Config</pre>
+            <div class="try-section">
+              <h4>示例 Mutation</h4>
+              <textarea id="mut11">mutation {
+  updateConfig(input: {
+    key: "blog_title"
+    value: "我的技术博客"
+    description: "博客标题"
+  }) {
+    key
+    value
+  }
+}</textarea>
+              <button onclick="copyToClipboard('mut11')">复制</button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+      <!-- Types -->
+      <div class="section" id="types">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h2>数据类型 (Types)</h2>
+          <span class="toggle">▼</span>
+        </div>
+        <div class="section-content">
+          
+          <div class="type-def">
+            <h4>Post - 文章</h4>
+            <div class="fields">
+              <div class="field"><span class="field-name">id</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">title</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">slug</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">excerpt</span>: <span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">content</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">coverImage</span>: <span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">status</span>: <span class="field-type">PostStatus!</span></div>
+              <div class="field"><span class="field-name">visibility</span>: <span class="field-type">PostVisibility!</span></div>
+              <div class="field"><span class="field-name">viewCount</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">likeCount</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">isSticky</span>: <span class="field-type">Boolean!</span></div>
+              <div class="field"><span class="field-name">tags</span>: <span class="field-type">[Tag!]!</span></div>
+              <div class="field"><span class="field-name">createdAt</span>: <span class="field-type">Date!</span></div>
+              <div class="field"><span class="field-name">publishedAt</span>: <span class="field-type">Date</span></div>
+            </div>
+          </div>
+          
+          <div class="type-def">
+            <h4>Category - 分类</h4>
+            <div class="fields">
+              <div class="field"><span class="field-name">id</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">name</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">slug</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">description</span>: <span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">parentId</span>: <span class="field-type">Int</span></div>
+              <div class="field"><span class="field-name">sortOrder</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">isActive</span>: <span class="field-type">Boolean!</span></div>
+              <div class="field"><span class="field-name">postCount</span>: <span class="field-type">Int!</span></div>
+            </div>
+          </div>
+          
+          <div class="type-def">
+            <h4>Tag - 标签</h4>
+            <div class="fields">
+              <div class="field"><span class="field-name">id</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">name</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">slug</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">description</span>: <span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">postCount</span>: <span class="field-type">Int!</span></div>
+            </div>
+          </div>
+          
+          <div class="type-def">
+            <h4>Comment - 评论</h4>
+            <div class="fields">
+              <div class="field"><span class="field-name">id</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">postId</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">parentId</span>: <span class="field-type">Int</span></div>
+              <div class="field"><span class="field-name">authorName</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">authorEmail</span>: <span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">authorAvatar</span>: <span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">content</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">status</span>: <span class="field-type">CommentStatus!</span></div>
+              <div class="field"><span class="field-name">likeCount</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">replies</span>: <span class="field-type">[Comment!]</span></div>
+            </div>
+          </div>
+          
+          <div class="type-def">
+            <h4>Link - 友情链接</h4>
+            <div class="fields">
+              <div class="field"><span class="field-name">id</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">name</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">url</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">description</span>: <span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">avatar</span>: <span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">sortOrder</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">isActive</span>: <span class="field-type">Boolean!</span></div>
+            </div>
+          </div>
+          
+          <div class="type-def">
+            <h4>BlogStats - 统计数据</h4>
+            <div class="fields">
+              <div class="field"><span class="field-name">totalPosts</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">totalComments</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">totalViews</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">totalLikes</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">publishedPosts</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">pendingComments</span>: <span class="field-type">Int!</span></div>
+            </div>
+          </div>
+          
+          <div class="type-def">
+            <h4>PostListResult - 文章列表结果</h4>
+            <div class="fields">
+              <div class="field"><span class="field-name">posts</span>: <span class="field-type">[Post!]!</span></div>
+              <div class="field"><span class="field-name">total</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">page</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">pageSize</span>: <span class="field-type">Int!</span></div>
+            </div>
+          </div>
+          
+          <div class="type-def">
+            <h4>ArchiveStats - 归档统计</h4>
+            <div class="fields">
+              <div class="field"><span class="field-name">year</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">month</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">count</span>: <span class="field-type">Int!</span></div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+      <!-- Enums -->
+      <div class="section" id="enums">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h2>枚举类型 (Enums)</h2>
+          <span class="toggle">▼</span>
+        </div>
+        <div class="section-content">
+          
+          <div class="type-def">
+            <h4>PostStatus - 文章状态</h4>
+            <code>DRAFT | PUBLISHED | ARCHIVED | DELETED</code>
+          </div>
+          
+          <div class="type-def">
+            <h4>PostVisibility - 文章可见性</h4>
+            <code>PUBLIC | PRIVATE | PROTECTED</code>
+          </div>
+          
+          <div class="type-def">
+            <h4>CommentStatus - 评论状态</h4>
+            <code>PENDING | APPROVED | REJECTED | HIDDEN | DELETED</code>
+          </div>
+          
+        </div>
+      </div>
+      
+      <!-- Input Types -->
+      <div class="section" id="inputs">
+        <div class="section-header" onclick="toggleSection(this)">
+          <h2>输入类型 (Input Types)</h2>
+          <span class="toggle">▼</span>
+        </div>
+        <div class="section-content">
+          
+          <div class="type-def">
+            <h4>CreatePostInput - 创建文章输入</h4>
+            <div class="fields">
+              <div class="field"><span class="field-name">title</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">slug</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">excerpt</span>: <span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">content</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">coverImage</span>: <span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">status</span>: <span class="field-type">PostStatus!</span></div>
+              <div class="field"><span class="field-name">visibility</span>: <span class="field-type">PostVisibility!</span></div>
+              <div class="field"><span class="field-name">isSticky</span>: <span class="field-type">Boolean!</span></div>
+              <div class="field"><span class="field-name">categoryId</span>: <span class="field-type">Int</span></div>
+              <div class="field"><span class="field-name">tagIds</span>: <span class="field-type">[Int!]</span></div>
+            </div>
+          </div>
+          
+          <div class="type-def">
+            <h4>CreateCommentInput - 创建评论输入</h4>
+            <div class="fields">
+              <div class="field"><span class="field-name">postId</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">parentId</span>: <span class="field-type">Int</span></div>
+              <div class="field"><span class="field-name">authorName</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">authorEmail</span>: <span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">content</span>: <span class="field-type">String!</span></div>
+            </div>
+          </div>
+          
+          <div class="type-def">
+            <h4>CreateCategoryInput - 创建分类输入</h4>
+            <div class="fields">
+              <div class="field"><span class="field-name">name</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">slug</span>: <span class="field-type">String!</span></div>
+              <div class="field"><span class="field-name">description</span>: <span class="field-type">String</span></div>
+              <div class="field"><span class="field-name">parentId</span>: <span class="field-type">Int</span></div>
+              <div class="field"><span class="field-name">sortOrder</span>: <span class="field-type">Int!</span></div>
+              <div class="field"><span class="field-name">isActive</span>: <span class="field-type">Boolean!</span></div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+  <script>
+    function toggleSection(header) {
+      const section = header.parentElement;
+      section.classList.toggle('collapsed');
+    }
+    
+    function copyToClipboard(id) {
+      const textarea = document.getElementById(id);
+      navigator.clipboard.writeText(textarea.value).then(() => {
+        alert('已复制到剪贴板！');
+      });
+    }
+  </script>
+</body>
+</html>
