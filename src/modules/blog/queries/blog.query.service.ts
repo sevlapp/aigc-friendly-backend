@@ -12,6 +12,7 @@ import { ConfigEntity } from '../entities/config.entity';
 import type {
   ArchiveStats,
   BlogStats,
+  CategoryTreeView,
   CategoryView,
   CommentQueryOptions,
   CommentView,
@@ -142,6 +143,51 @@ export class BlogQueryService {
       isActive: cat.isActive === 1,
       postCount: postCounts[cat.id] || 0,
     }));
+  }
+
+  async getCategoryTree(): Promise<CategoryTreeView[]> {
+    const categories = await this.categoryRepository.find({
+      where: { isActive: 1 },
+      order: { sortOrder: 'ASC', createdAt: 'DESC' },
+    });
+
+    const postCounts = await this.getPostCountsByCategory();
+
+    const categoryViews = categories.map((cat) => ({
+      ...cat,
+      isActive: cat.isActive === 1,
+      postCount: postCounts[cat.id] || 0,
+    }));
+
+    return this.buildCategoryTree(categoryViews);
+  }
+
+  private buildCategoryTree(categories: CategoryView[]): CategoryTreeView[] {
+    const categoryMap = new Map<number, CategoryTreeView>();
+    const rootCategories: CategoryTreeView[] = [];
+
+    categories.forEach((cat) => {
+      const treeNode: CategoryTreeView = {
+        ...cat,
+        children: [],
+      };
+      categoryMap.set(cat.id, treeNode);
+
+      if (!cat.parentId || cat.parentId === 0) {
+        rootCategories.push(treeNode);
+      }
+    });
+
+    categories.forEach((cat) => {
+      if (cat.parentId && cat.parentId > 0) {
+        const parent = categoryMap.get(cat.parentId);
+        if (parent) {
+          parent.children.push(categoryMap.get(cat.id)!);
+        }
+      }
+    });
+
+    return rootCategories;
   }
 
   async getCategoryBySlug(slug: string): Promise<CategoryView | null> {

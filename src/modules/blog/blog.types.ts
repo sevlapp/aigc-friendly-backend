@@ -41,6 +41,10 @@ export interface CategoryView {
   readonly updatedAt: Date;
 }
 
+export interface CategoryTreeView extends CategoryView {
+  readonly children: CategoryTreeView[];
+}
+
 export interface TagView {
   readonly id: number;
   readonly name: string;

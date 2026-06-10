@@ -1,6 +1,6 @@
 // src/adapters/api/graphql/blog/blog-admin.resolver.ts
 
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { ValidateInput } from '@src/adapters/api/graphql/common/validate-input.decorator';
 import { JwtAuthGuard } from '@src/adapters/api/graphql/guards/jwt-auth.guard';
@@ -9,6 +9,7 @@ import { UpdatePostUsecase } from '@src/usecases/blog/update-post.usecase';
 import { DeletePostUsecase } from '@src/usecases/blog/delete-post.usecase';
 import { UpdateCommentUsecase } from '@src/usecases/blog/update-comment.usecase';
 import { ApproveCommentUsecase } from '@src/usecases/blog/approve-comment.usecase';
+import { RejectCommentUsecase } from '@src/usecases/blog/reject-comment.usecase';
 import { DeleteCommentUsecase } from '@src/usecases/blog/delete-comment.usecase';
 import { CreateCategoryUsecase, UpdateCategoryUsecase, DeleteCategoryUsecase } from '@src/usecases/blog/category.usecases';
 import { CreateTagUsecase, UpdateTagUsecase, DeleteTagUsecase } from '@src/usecases/blog/tag.usecases';
@@ -109,6 +110,7 @@ export class BlogAdminResolver {
     private readonly deletePostUsecase: DeletePostUsecase,
     private readonly updateCommentUsecase: UpdateCommentUsecase,
     private readonly approveCommentUsecase: ApproveCommentUsecase,
+    private readonly rejectCommentUsecase: RejectCommentUsecase,
     private readonly deleteCommentUsecase: DeleteCommentUsecase,
     private readonly createCategoryUsecase: CreateCategoryUsecase,
     private readonly updateCategoryUsecase: UpdateCategoryUsecase,
@@ -156,7 +158,7 @@ export class BlogAdminResolver {
   }
 
   @Mutation(() => Boolean)
-  async adminDeletePost(@Args('id') id: number): Promise<boolean> {
+  async adminDeletePost(@Args('id', { type: () => Int }) id: number): Promise<boolean> {
     return this.deletePostUsecase.execute(id);
   }
 
@@ -178,6 +180,11 @@ export class BlogAdminResolver {
   @Mutation(() => Boolean)
   async adminApproveComment(@Args('id') id: number): Promise<boolean> {
     return this.approveCommentUsecase.execute(id);
+  }
+
+  @Mutation(() => Boolean)
+  async adminRejectComment(@Args('id') id: number): Promise<boolean> {
+    return this.rejectCommentUsecase.execute(id);
   }
 
   @Mutation(() => Boolean)

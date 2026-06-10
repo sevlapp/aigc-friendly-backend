@@ -503,7 +503,7 @@ type Mutation {
   adminDeleteCategory(id: Float!): Boolean!
   adminDeleteComment(id: Float!): Boolean!
   adminDeleteLink(id: Float!): Boolean!
-  adminDeletePost(id: Float!): Boolean!
+  adminDeletePost(id: Int!): Boolean!
   adminDeleteTag(id: Float!): Boolean!
   adminUpdateCategory(input: UpdateCategoryInput!): CategoryDTO
   adminUpdateComment(input: UpdateCommentInput!): CommentDTO
@@ -529,7 +529,7 @@ type Mutation {
   createVerificationRecord(input: CreateVerificationRecordInput!): CreateVerificationRecordResult!
   deleteCategory(id: Float!): Boolean!
   deleteLink(id: Float!): Boolean!
-  deletePost(id: Float!): Boolean!
+  deletePost(id: Int!): Boolean!
   deleteTag(id: Float!): Boolean!
 
   """生成微信小程序二维码"""

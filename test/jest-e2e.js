@@ -12,6 +12,7 @@ const GROUPS = {
       '04-user-info/update-visible-user-info.e2e-spec.ts',
       '05-verification-record/verification-record-types.e2e-spec.ts',
       '05-verification-record/verification-record-invite.e2e-spec.ts',
+      '06-blog/blog-post.e2e-spec.ts',
       '07-pagination-sort-search/pagination.e2e-spec.ts',
       '07-pagination-sort-search/search.e2e-spec.ts',
       '07-pagination-sort-search/sort.e2e-spec.ts',

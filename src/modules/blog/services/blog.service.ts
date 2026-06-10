@@ -24,6 +24,7 @@ import type {
   UpdatePostInput,
   UpdateTagInput,
 } from '../blog.types';
+const xss = require('xss');
 
 @Injectable()
 export class BlogService {
@@ -205,6 +206,7 @@ export class BlogService {
     const now = new Date();
     const comment = repo.create({
       ...input,
+      content: this.sanitizeContent(input.content),
       status: CommentStatus.PENDING,
       authorAvatar: input.authorEmail
         ? `https://www.gravatar.com/avatar/${this.md5(input.authorEmail)}?d=identicon`
@@ -214,6 +216,26 @@ export class BlogService {
     });
 
     return repo.save(comment);
+  }
+
+  async rejectComment(id: number): Promise<boolean> {
+    const result = await this.commentRepository.update(id, { status: CommentStatus.REJECTED });
+    return result.affected !== undefined && result.affected !== null && result.affected > 0;
+  }
+
+  private sanitizeContent(content: string): string {
+    return xss(content, {
+      whiteList: {
+        a: ['href', 'title', 'target'],
+        p: [],
+        br: [],
+        strong: [],
+        em: [],
+        span: [],
+      },
+      stripIgnoreTag: true,
+      stripIgnoreTagBody: ['script'],
+    });
   }
 
   async updateComment(

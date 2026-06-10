@@ -1,6 +1,6 @@
 // src/adapters/api/graphql/blog/blog.resolver.ts
 
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ValidateInput } from '@src/adapters/api/graphql/common/validate-input.decorator';
 import { CreatePostUsecase } from '@src/usecases/blog/create-post.usecase';
 import { UpdatePostUsecase } from '@src/usecases/blog/update-post.usecase';
@@ -21,6 +21,7 @@ import {
   GetPreviousPostUsecase,
   GetCategoriesUsecase,
   GetCategoryBySlugUsecase,
+  GetCategoryTreeUsecase,
   GetTagsUsecase,
   GetTagBySlugUsecase,
   GetPostCommentsUsecase,
@@ -38,6 +39,7 @@ import { PostByIdArgs, PostBySlugArgs, PostQueryArgs, CommentQueryArgs, UpdateCo
 import type {
   ArchiveStats,
   BlogStats,
+  CategoryTreeView,
   CategoryView,
   CommentView,
   ConfigView,
@@ -59,6 +61,13 @@ function mapTagViewToDTO(view: TagView): TagDTO {
 
 function mapCategoryViewToDTO(view: CategoryView): CategoryDTO {
   return { ...view };
+}
+
+function mapCategoryTreeViewToDTO(view: CategoryView & { children: CategoryTreeView[] }): CategoryDTO {
+  return {
+    ...view,
+    children: view.children.map(mapCategoryTreeViewToDTO),
+  };
 }
 
 function mapCommentViewToDTO(view: CommentView): CommentDTO {
@@ -95,6 +104,7 @@ export class BlogResolver {
     private readonly getPreviousPostUsecase: GetPreviousPostUsecase,
     private readonly getCategoriesUsecase: GetCategoriesUsecase,
     private readonly getCategoryBySlugUsecase: GetCategoryBySlugUsecase,
+    private readonly getCategoryTreeUsecase: GetCategoryTreeUsecase,
     private readonly getTagsUsecase: GetTagsUsecase,
     private readonly getTagBySlugUsecase: GetTagBySlugUsecase,
     private readonly getPostCommentsUsecase: GetPostCommentsUsecase,
@@ -173,6 +183,12 @@ export class BlogResolver {
     return category ? mapCategoryViewToDTO(category) : null;
   }
 
+  @Query(() => [CategoryDTO])
+  async categoryTree(): Promise<CategoryDTO[]> {
+    const categoryTree = await this.getCategoryTreeUsecase.execute();
+    return categoryTree.map((cat) => mapCategoryTreeViewToDTO(cat));
+  }
+
   @Query(() => [TagDTO])
   async tags(): Promise<TagDTO[]> {
     const tags = await this.getTagsUsecase.execute();
@@ -230,7 +246,7 @@ export class BlogResolver {
   }
 
   @Mutation(() => Boolean)
-  async deletePost(@Args('id') id: number): Promise<boolean> {
+  async deletePost(@Args('id', { type: () => Int }) id: number): Promise<boolean> {
     return this.deletePostUsecase.execute(id);
   }
 

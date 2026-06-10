@@ -2,7 +2,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { BlogQueryService } from '@src/modules/blog/queries/blog.query.service';
-import type { ArchiveStats, BlogStats, CategoryView, CommentQueryOptions, CommentView, ConfigView, LinkView, PostQueryOptions, PostView, TagView } from '@src/modules/blog/blog.types';
+import type { ArchiveStats, BlogStats, CategoryTreeView, CategoryView, CommentQueryOptions, CommentView, ConfigView, LinkView, PostQueryOptions, PostView, TagView } from '@src/modules/blog/blog.types';
 
 export interface GetPostsInput {
   options: PostQueryOptions;
@@ -76,6 +76,15 @@ export class GetCategoryBySlugUsecase {
 
   async execute(slug: string): Promise<CategoryView | null> {
     return this.blogQueryService.getCategoryBySlug(slug);
+  }
+}
+
+@Injectable()
+export class GetCategoryTreeUsecase {
+  constructor(private readonly blogQueryService: BlogQueryService) {}
+
+  async execute(): Promise<CategoryTreeView[]> {
+    return this.blogQueryService.getCategoryTree();
   }
 }
 

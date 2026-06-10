@@ -115,4 +115,7 @@ export class CategoryDTO {
 
   @Field(() => Date)
   updatedAt!: Date;
+
+  @Field(() => [CategoryDTO], { nullable: true })
+  children?: CategoryDTO[];
 }
