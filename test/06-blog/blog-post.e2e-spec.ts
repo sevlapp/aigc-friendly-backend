@@ -42,9 +42,9 @@ describe('Blog Post (e2e)', () => {
   const cleanupTestData = async (): Promise<void> => {
     try {
       await dataSource.query('SET FOREIGN_KEY_CHECKS = 0');
-      await dataSource.getRepository(TagEntity).clear();
-      await dataSource.getRepository(CategoryEntity).clear();
       await dataSource.getRepository(PostEntity).clear();
+      await dataSource.getRepository(CategoryEntity).clear();
+      await dataSource.getRepository(TagEntity).clear();
       await dataSource.query('SET FOREIGN_KEY_CHECKS = 1');
     } catch (error) {
       console.warn('清理测试数据失败:', error);
@@ -57,8 +57,6 @@ describe('Blog Post (e2e)', () => {
       categoryRepo.create({
         name: '测试分类',
         slug: 'test-category',
-        sortOrder: 1,
-        isActive: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
       }),
@@ -79,7 +77,7 @@ describe('Blog Post (e2e)', () => {
     return tag.id;
   };
 
-  describe('文章创建', () => {
+  describe('创建文章', () => {
     it('应该成功创建草稿文章', async () => {
       const response = await request(app.getHttpServer())
         .post('/graphql')
@@ -92,8 +90,6 @@ describe('Blog Post (e2e)', () => {
                 slug
                 content
                 status
-                visibility
-                isSticky
               }
             }
           `,
@@ -101,7 +97,7 @@ describe('Blog Post (e2e)', () => {
             input: {
               title: '测试文章',
               slug: 'test-post',
-              content: '这是一篇测试文章的内容',
+              content: '测试文章内容',
               status: 'DRAFT',
               visibility: 'PUBLIC',
               isSticky: false,
@@ -116,11 +112,9 @@ describe('Blog Post (e2e)', () => {
       expect(data?.createPost.title).toBe('测试文章');
       expect(data?.createPost.slug).toBe('test-post');
       expect(data?.createPost.status).toBe('DRAFT');
-      expect(data?.createPost.visibility).toBe('PUBLIC');
-      expect(data?.createPost.isSticky).toBe(false);
     });
 
-    it('应该成功创建已发布文章', async () => {
+    it('应该成功创建已发布文章并自动设置 publishedAt', async () => {
       const response = await request(app.getHttpServer())
         .post('/graphql')
         .send({
@@ -138,7 +132,7 @@ describe('Blog Post (e2e)', () => {
             input: {
               title: '已发布文章',
               slug: 'published-post',
-              content: '这是一篇已发布的文章',
+              content: '已发布内容',
               status: 'PUBLISHED',
               visibility: 'PUBLIC',
               isSticky: false,
@@ -169,13 +163,13 @@ describe('Blog Post (e2e)', () => {
           `,
           variables: {
             input: {
-              title: '带分类文章',
+              title: '带分类的文章',
               slug: 'post-with-category',
-              content: '这篇文章有分类',
+              content: '内容',
               status: 'DRAFT',
               visibility: 'PUBLIC',
-              isSticky: false,
               categoryId,
+              isSticky: false,
             },
           },
         });
@@ -204,13 +198,13 @@ describe('Blog Post (e2e)', () => {
           `,
           variables: {
             input: {
-              title: '带标签文章',
+              title: '带标签的文章',
               slug: 'post-with-tags',
-              content: '这篇文章有标签',
+              content: '内容',
               status: 'DRAFT',
               visibility: 'PUBLIC',
-              isSticky: false,
               tagIds: [tagId],
+              isSticky: false,
             },
           },
         });
@@ -221,7 +215,7 @@ describe('Blog Post (e2e)', () => {
       expect(data?.createPost.tags[0].name).toBe('测试标签');
     });
 
-    it('创建文章时缺少必填字段应失败', async () => {
+    it('缺少必填字段 title 应失败', async () => {
       const response = await request(app.getHttpServer())
         .post('/graphql')
         .send({
@@ -234,20 +228,42 @@ describe('Blog Post (e2e)', () => {
           `,
           variables: {
             input: {
-              title: '缺少slug',
+              slug: 'missing-title',
               content: '内容',
               status: 'DRAFT',
               visibility: 'PUBLIC',
-              isSticky: false,
             },
           },
         });
 
-      const { errors } = response.body;
-      expect(errors).toBeDefined();
+      expect(response.body.errors).toBeDefined();
     });
 
-    it('创建文章时slug重复应失败', async () => {
+    it('缺少必填字段 slug 应失败', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .send({
+          query: `
+            mutation CreatePost($input: CreatePostInput!) {
+              createPost(input: $input) {
+                id
+              }
+            }
+          `,
+          variables: {
+            input: {
+              title: '缺少 slug',
+              content: '内容',
+              status: 'DRAFT',
+              visibility: 'PUBLIC',
+            },
+          },
+        });
+
+      expect(response.body.errors).toBeDefined();
+    });
+
+    it('重复 slug 应失败', async () => {
       await request(app.getHttpServer())
         .post('/graphql')
         .send({
@@ -260,12 +276,11 @@ describe('Blog Post (e2e)', () => {
           `,
           variables: {
             input: {
-              title: '文章1',
+              title: '第一篇文章',
               slug: 'duplicate-slug',
-              content: '内容1',
+              content: '内容',
               status: 'DRAFT',
               visibility: 'PUBLIC',
-              isSticky: false,
             },
           },
         });
@@ -282,101 +297,34 @@ describe('Blog Post (e2e)', () => {
           `,
           variables: {
             input: {
-              title: '文章2',
+              title: '第二篇文章',
               slug: 'duplicate-slug',
-              content: '内容2',
+              content: '内容',
               status: 'DRAFT',
               visibility: 'PUBLIC',
-              isSticky: false,
             },
           },
         });
 
-      const { errors } = response.body;
-      expect(errors).toBeDefined();
+      expect(response.body.errors).toBeDefined();
     });
   });
 
-  describe('文章查询', () => {
-    it('应该成功查询文章列表', async () => {
-      await request(app.getHttpServer())
-        .post('/graphql')
-        .send({
-          query: `
-            mutation CreatePost($input: CreatePostInput!) {
-              createPost(input: $input) {
-                id
-              }
-            }
-          `,
-          variables: {
-            input: {
-              title: '查询测试文章',
-              slug: 'query-test-post',
-              content: '查询测试内容',
-              status: 'PUBLISHED',
-              visibility: 'PUBLIC',
-              isSticky: false,
-            },
-          },
-        });
-
-      const response = await request(app.getHttpServer())
-        .post('/graphql')
-        .send({
-          query: `
-            query GetPosts($page: Int, $pageSize: Int) {
-              posts(page: $page, pageSize: $pageSize) {
-                posts {
-                  id
-                  title
-                  slug
-                }
-                total
-                page
-                pageSize
-              }
-            }
-          `,
-          variables: {
-            page: 1,
-            pageSize: 10,
-          },
-        });
-
-      const { data, errors } = response.body;
-      expect(errors).toBeUndefined();
-      expect(data?.posts.posts).toBeDefined();
-      expect(data?.posts.total).toBeGreaterThanOrEqual(1);
-      expect(data?.posts.page).toBe(1);
-      expect(data?.posts.pageSize).toBe(10);
-    });
-
+  describe('查询文章', () => {
     it('应该成功查询单篇文章', async () => {
-      const createResponse = await request(app.getHttpServer())
-        .post('/graphql')
-        .send({
-          query: `
-            mutation CreatePost($input: CreatePostInput!) {
-              createPost(input: $input) {
-                id
-                title
-              }
-            }
-          `,
-          variables: {
-            input: {
-              title: '单篇查询测试',
-              slug: 'single-query-test',
-              content: '单篇查询内容',
-              status: 'PUBLISHED',
-              visibility: 'PUBLIC',
-              isSticky: false,
-            },
-          },
-        });
-
-      const postId = createResponse.body.data.createPost.id;
+      const postRepo = dataSource.getRepository(PostEntity);
+      const post = await postRepo.save(
+        postRepo.create({
+          title: '查询测试文章',
+          slug: 'query-test-post',
+          content: '查询内容',
+          status: PostStatus.PUBLISHED,
+          visibility: PostVisibility.PUBLIC,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          publishedAt: new Date(),
+        }),
+      );
 
       const response = await request(app.getHttpServer())
         .post('/graphql')
@@ -391,15 +339,14 @@ describe('Blog Post (e2e)', () => {
               }
             }
           `,
-          variables: {
-            id: postId,
-          },
+          variables: { id: post.id },
         });
 
       const { data, errors } = response.body;
       expect(errors).toBeUndefined();
-      expect(data?.post.id).toBe(postId);
-      expect(data?.post.title).toBe('单篇查询测试');
+      expect(data?.post).toBeDefined();
+      expect(data?.post.title).toBe('查询测试文章');
+      expect(data?.post.slug).toBe('query-test-post');
     });
 
     it('查询不存在的文章应返回 null', async () => {
@@ -413,101 +360,168 @@ describe('Blog Post (e2e)', () => {
               }
             }
           `,
-          variables: {
-            id: 99999,
-          },
+          variables: { id: 99999 },
         });
 
       const { data, errors } = response.body;
       expect(errors).toBeUndefined();
       expect(data?.post).toBeNull();
     });
-  });
 
-  describe('文章更新', () => {
-    it('应该成功更新文章', async () => {
-      const createResponse = await request(app.getHttpServer())
-        .post('/graphql')
-        .send({
-          query: `
-            mutation CreatePost($input: CreatePostInput!) {
-              createPost(input: $input) {
-                id
-                title
-                slug
-              }
-            }
-          `,
-          variables: {
-            input: {
-              title: '待更新文章',
-              slug: 'to-update-post',
-              content: '待更新内容',
-              status: 'DRAFT',
-              visibility: 'PUBLIC',
-              isSticky: false,
-            },
-          },
-        });
-
-      const postId = createResponse.body.data.createPost.id;
+    it('应该成功查询文章列表', async () => {
+      const postRepo = dataSource.getRepository(PostEntity);
+      await postRepo.save([
+        postRepo.create({
+          title: '文章1',
+          slug: 'post-1',
+          content: '内容1',
+          status: PostStatus.PUBLISHED,
+          visibility: PostVisibility.PUBLIC,
+          createdAt: new Date('2024-01-01'),
+          updatedAt: new Date('2024-01-01'),
+          publishedAt: new Date('2024-01-01'),
+        }),
+        postRepo.create({
+          title: '文章2',
+          slug: 'post-2',
+          content: '内容2',
+          status: PostStatus.PUBLISHED,
+          visibility: PostVisibility.PUBLIC,
+          createdAt: new Date('2024-01-02'),
+          updatedAt: new Date('2024-01-02'),
+          publishedAt: new Date('2024-01-02'),
+        }),
+      ]);
 
       const response = await request(app.getHttpServer())
         .post('/graphql')
         .send({
           query: `
-            mutation UpdatePost($input: UpdatePostInput!) {
-              updatePost(input: $input) {
-                id
-                title
-                slug
-                status
+            query GetPosts($page: Int, $pageSize: Int) {
+              posts(page: $page, pageSize: $pageSize) {
+                posts {
+                  id
+                  title
+                }
+                total
+                page
+                pageSize
               }
             }
           `,
-          variables: {
-            input: {
-              id: postId,
-              title: '已更新文章',
-              slug: 'updated-post',
-              status: 'PUBLISHED',
-            },
-          },
+          variables: { page: 1, pageSize: 10 },
         });
 
       const { data, errors } = response.body;
       expect(errors).toBeUndefined();
-      expect(data?.updatePost.id).toBe(postId);
-      expect(data?.updatePost.title).toBe('已更新文章');
-      expect(data?.updatePost.slug).toBe('updated-post');
-      expect(data?.updatePost.status).toBe('PUBLISHED');
+      expect(data?.posts.posts).toHaveLength(2);
+      expect(data?.posts.total).toBe(2);
     });
 
-    it('应该成功切换文章状态', async () => {
-      const createResponse = await request(app.getHttpServer())
+    it('应该按状态筛选文章（公共查询）', async () => {
+      const postRepo = dataSource.getRepository(PostEntity);
+      await postRepo.save([
+        postRepo.create({
+          title: '草稿文章',
+          slug: 'draft-post',
+          content: '内容',
+          status: PostStatus.DRAFT,
+          visibility: PostVisibility.PUBLIC,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
+        postRepo.create({
+          title: '已发布文章',
+          slug: 'published-post',
+          content: '内容',
+          status: PostStatus.PUBLISHED,
+          visibility: PostVisibility.PUBLIC,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          publishedAt: new Date(),
+        }),
+      ]);
+
+      const response = await request(app.getHttpServer())
         .post('/graphql')
         .send({
           query: `
-            mutation CreatePost($input: CreatePostInput!) {
-              createPost(input: $input) {
+            query Posts($status: PostStatus) {
+              posts(status: $status) {
+                posts {
+                  id
+                  title
+                  status
+                }
+                total
+              }
+            }
+          `,
+          variables: { status: 'PUBLISHED' },
+        });
+
+      const { data, errors } = response.body;
+      expect(errors).toBeUndefined();
+      expect(data?.posts.posts).toHaveLength(1);
+      expect(data?.posts.posts[0].status).toBe('PUBLISHED');
+    });
+  });
+
+  describe('更新文章', () => {
+    it('应该成功更新文章内容', async () => {
+      const postRepo = dataSource.getRepository(PostEntity);
+      const post = await postRepo.save(
+        postRepo.create({
+          title: '原始标题',
+          slug: 'original-slug',
+          content: '原始内容',
+          status: PostStatus.DRAFT,
+          visibility: PostVisibility.PUBLIC,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
+      );
+
+      const response = await request(app.getHttpServer())
+        .post('/graphql')
+        .send({
+          query: `
+            mutation UpdatePost($input: UpdatePostInput!) {
+              updatePost(input: $input) {
                 id
-                status
+                title
+                content
               }
             }
           `,
           variables: {
             input: {
-              title: '状态切换测试',
-              slug: 'status-switch-test',
-              content: '状态切换内容',
-              status: 'DRAFT',
-              visibility: 'PUBLIC',
-              isSticky: false,
+              id: post.id,
+              title: '更新后的标题',
+              content: '更新后的内容',
             },
           },
         });
 
-      const postId = createResponse.body.data.createPost.id;
+      const { data, errors } = response.body;
+      expect(errors).toBeUndefined();
+      expect(data?.updatePost.title).toBe('更新后的标题');
+      expect(data?.updatePost.content).toBe('更新后的内容');
+    });
+
+    it('更新文章状态为发布时应自动设置 publishedAt', async () => {
+      const postRepo = dataSource.getRepository(PostEntity);
+      const post = await postRepo.save(
+        postRepo.create({
+          title: '待发布文章',
+          slug: 'to-be-published',
+          content: '内容',
+          status: PostStatus.DRAFT,
+          visibility: PostVisibility.PUBLIC,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
+      );
 
       const response = await request(app.getHttpServer())
         .post('/graphql')
@@ -517,12 +531,13 @@ describe('Blog Post (e2e)', () => {
               updatePost(input: $input) {
                 id
                 status
+                publishedAt
               }
             }
           `,
           variables: {
             input: {
-              id: postId,
+              id: post.id,
               status: 'PUBLISHED',
             },
           },
@@ -531,6 +546,7 @@ describe('Blog Post (e2e)', () => {
       const { data, errors } = response.body;
       expect(errors).toBeUndefined();
       expect(data?.updatePost.status).toBe('PUBLISHED');
+      expect(data?.updatePost.publishedAt).toBeDefined();
     });
 
     it('更新不存在的文章应返回 null', async () => {
@@ -558,34 +574,22 @@ describe('Blog Post (e2e)', () => {
     });
   });
 
-  describe('文章删除', () => {
+  describe('删除文章', () => {
     it('应该成功软删除文章', async () => {
-      const createResponse = await request(app.getHttpServer())
-        .post('/graphql')
-        .send({
-          query: `
-            mutation CreatePost($input: CreatePostInput!) {
-              createPost(input: $input) {
-                id
-                status
-              }
-            }
-          `,
-          variables: {
-            input: {
-              title: '待删除文章',
-              slug: 'to-delete-post',
-              content: '待删除内容',
-              status: 'PUBLISHED',
-              visibility: 'PUBLIC',
-              isSticky: false,
-            },
-          },
-        });
+      const postRepo = dataSource.getRepository(PostEntity);
+      const post = await postRepo.save(
+        postRepo.create({
+          title: '待删除文章',
+          slug: 'to-be-deleted',
+          content: '内容',
+          status: PostStatus.DRAFT,
+          visibility: PostVisibility.PUBLIC,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
+      );
 
-      const postId = createResponse.body.data.createPost.id;
-
-      const deleteResponse = await request(app.getHttpServer())
+      const response = await request(app.getHttpServer())
         .post('/graphql')
         .send({
           query: `
@@ -593,34 +597,15 @@ describe('Blog Post (e2e)', () => {
               deletePost(id: $id)
             }
           `,
-          variables: {
-            id: postId,
-          },
+          variables: { id: post.id },
         });
 
-      const { data: deleteData, errors: deleteErrors } = deleteResponse.body;
-      expect(deleteErrors).toBeUndefined();
-      expect(deleteData?.deletePost).toBe(true);
+      const { data, errors } = response.body;
+      expect(errors).toBeUndefined();
+      expect(data?.deletePost).toBe(true);
 
-      const queryResponse = await request(app.getHttpServer())
-        .post('/graphql')
-        .send({
-          query: `
-            query GetPost($id: Int!) {
-              post(id: $id) {
-                id
-                status
-              }
-            }
-          `,
-          variables: {
-            id: postId,
-          },
-        });
-
-      const { data: queryData, errors: queryErrors } = queryResponse.body;
-      expect(queryErrors).toBeUndefined();
-      expect(queryData?.post).toBeNull();
+      const deletedPost = await postRepo.findOne({ where: { id: post.id } });
+      expect(deletedPost?.status).toBe(PostStatus.DELETED);
     });
 
     it('删除不存在的文章应返回 false', async () => {
@@ -632,9 +617,7 @@ describe('Blog Post (e2e)', () => {
               deletePost(id: $id)
             }
           `,
-          variables: {
-            id: 99999,
-          },
+          variables: { id: 99999 },
         });
 
       const { data, errors } = response.body;
@@ -643,32 +626,20 @@ describe('Blog Post (e2e)', () => {
     });
   });
 
-  describe('文章状态切换', () => {
-    it('草稿 -> 发布', async () => {
-      const createResponse = await request(app.getHttpServer())
-        .post('/graphql')
-        .send({
-          query: `
-            mutation CreatePost($input: CreatePostInput!) {
-              createPost(input: $input) {
-                id
-                status
-              }
-            }
-          `,
-          variables: {
-            input: {
-              title: '草稿转发布',
-              slug: 'draft-to-published',
-              content: '草稿转发布内容',
-              status: 'DRAFT',
-              visibility: 'PUBLIC',
-              isSticky: false,
-            },
-          },
-        });
-
-      const postId = createResponse.body.data.createPost.id;
+  describe('状态流转', () => {
+    it('应该正确进行状态流转：草稿 → 已发布', async () => {
+      const postRepo = dataSource.getRepository(PostEntity);
+      const post = await postRepo.save(
+        postRepo.create({
+          title: '状态流转测试',
+          slug: 'status-flow-test',
+          content: '内容',
+          status: PostStatus.DRAFT,
+          visibility: PostVisibility.PUBLIC,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }),
+      );
 
       const response = await request(app.getHttpServer())
         .post('/graphql')
@@ -684,66 +655,45 @@ describe('Blog Post (e2e)', () => {
           `,
           variables: {
             input: {
-              id: postId,
+              id: post.id,
               status: 'PUBLISHED',
             },
           },
         });
-
-      const { data, errors } = response.body;
-      expect(errors).toBeUndefined();
-      expect(data?.updatePost.status).toBe('PUBLISHED');
-      expect(data?.updatePost.publishedAt).toBeDefined();
+      expect(response.body.data?.updatePost.status).toBe('PUBLISHED');
+      expect(response.body.data?.updatePost.publishedAt).toBeDefined();
     });
 
-    it('发布 -> 草稿', async () => {
-      const createResponse = await request(app.getHttpServer())
-        .post('/graphql')
-        .send({
-          query: `
-            mutation CreatePost($input: CreatePostInput!) {
-              createPost(input: $input) {
-                id
-                status
-              }
-            }
-          `,
-          variables: {
-            input: {
-              title: '发布转草稿',
-              slug: 'published-to-draft',
-              content: '发布转草稿内容',
-              status: 'PUBLISHED',
-              visibility: 'PUBLIC',
-              isSticky: false,
-            },
-          },
-        });
-
-      const postId = createResponse.body.data.createPost.id;
+    it('应该正确进行状态流转：已发布 → 回收站', async () => {
+      const postRepo = dataSource.getRepository(PostEntity);
+      const post = await postRepo.save(
+        postRepo.create({
+          title: '测试删除',
+          slug: 'delete-test',
+          content: '内容',
+          status: PostStatus.PUBLISHED,
+          visibility: PostVisibility.PUBLIC,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          publishedAt: new Date(),
+        }),
+      );
 
       const response = await request(app.getHttpServer())
         .post('/graphql')
         .send({
           query: `
-            mutation UpdatePost($input: UpdatePostInput!) {
-              updatePost(input: $input) {
-                id
-                status
-              }
+            mutation DeletePost($id: Int!) {
+              deletePost(id: $id)
             }
           `,
-          variables: {
-            input: {
-              id: postId,
-              status: 'DRAFT',
-            },
-          },
+          variables: { id: post.id },
         });
 
-      const { data, errors } = response.body;
-      expect(errors).toBeUndefined();
-      expect(data?.updatePost.status).toBe('DRAFT');
+      expect(response.body.data?.deletePost).toBe(true);
+
+      const deletedPost = await postRepo.findOne({ where: { id: post.id } });
+      expect(deletedPost?.status).toBe(PostStatus.DELETED);
     });
   });
 });

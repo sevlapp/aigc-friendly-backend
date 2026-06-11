@@ -4,6 +4,8 @@ import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { ValidateInput } from '@src/adapters/api/graphql/common/validate-input.decorator';
 import { JwtAuthGuard } from '@src/adapters/api/graphql/guards/jwt-auth.guard';
+import { RolesGuard } from '@src/adapters/api/graphql/guards/roles.guard';
+import { Roles } from '@src/adapters/api/graphql/decorators/roles.decorator';
 import { CreatePostUsecase } from '@src/usecases/blog/create-post.usecase';
 import { UpdatePostUsecase } from '@src/usecases/blog/update-post.usecase';
 import { DeletePostUsecase } from '@src/usecases/blog/delete-post.usecase';
@@ -93,7 +95,8 @@ function mapArchiveStatsToDTO(stats: ArchiveStats): ArchiveStatsDTO {
  * 所有需要管理员权限的操作都在这里
  */
 @Resolver()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('admin')
 export class BlogAdminResolver {
   constructor(
     private readonly getPostsUsecase: GetPostsUsecase,

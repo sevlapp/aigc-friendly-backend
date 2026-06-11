@@ -8,6 +8,7 @@ import { DeletePostUsecase } from './delete-post.usecase';
 import { CreateCommentUsecase } from './create-comment.usecase';
 import { UpdateCommentUsecase } from './update-comment.usecase';
 import { ApproveCommentUsecase } from './approve-comment.usecase';
+import { RejectCommentUsecase } from './reject-comment.usecase';
 import { DeleteCommentUsecase } from './delete-comment.usecase';
 import { CreateCategoryUsecase, UpdateCategoryUsecase, DeleteCategoryUsecase } from './category.usecases';
 import { CreateTagUsecase, UpdateTagUsecase, DeleteTagUsecase } from './tag.usecases';
@@ -22,6 +23,7 @@ import {
   GetPreviousPostUsecase,
   GetCategoriesUsecase,
   GetCategoryBySlugUsecase,
+  GetCategoryTreeUsecase,
   GetTagsUsecase,
   GetTagBySlugUsecase,
   GetPostCommentsUsecase,
@@ -41,6 +43,7 @@ import {
     CreateCommentUsecase,
     UpdateCommentUsecase,
     ApproveCommentUsecase,
+    RejectCommentUsecase,
     CreateCategoryUsecase,
     UpdateCategoryUsecase,
     DeleteCategoryUsecase,
@@ -60,6 +63,7 @@ import {
     GetPreviousPostUsecase,
     GetCategoriesUsecase,
     GetCategoryBySlugUsecase,
+    GetCategoryTreeUsecase,
     GetTagsUsecase,
     GetTagBySlugUsecase,
     GetPostCommentsUsecase,
@@ -76,6 +80,7 @@ import {
     CreateCommentUsecase,
     UpdateCommentUsecase,
     ApproveCommentUsecase,
+    RejectCommentUsecase,
     CreateCategoryUsecase,
     UpdateCategoryUsecase,
     DeleteCategoryUsecase,
@@ -95,6 +100,7 @@ import {
     GetPreviousPostUsecase,
     GetCategoriesUsecase,
     GetCategoryBySlugUsecase,
+    GetCategoryTreeUsecase,
     GetTagsUsecase,
     GetTagBySlugUsecase,
     GetPostCommentsUsecase,

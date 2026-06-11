@@ -117,6 +117,7 @@ type BlogStatsDTO {
 }
 
 type CategoryDTO {
+  children: [CategoryDTO!]
   createdAt: DateTime!
   description: String
   id: Float!
@@ -505,6 +506,7 @@ type Mutation {
   adminDeleteLink(id: Float!): Boolean!
   adminDeletePost(id: Int!): Boolean!
   adminDeleteTag(id: Float!): Boolean!
+  adminRejectComment(id: Float!): Boolean!
   adminUpdateCategory(input: UpdateCategoryInput!): CategoryDTO
   adminUpdateComment(input: UpdateCommentInput!): CommentDTO
   adminUpdateConfig(input: UpdateConfigInput!): ConfigDTO
@@ -661,6 +663,7 @@ type Query {
   blogStats: BlogStatsDTO!
   categories: [CategoryDTO!]!
   category(slug: String!): CategoryDTO
+  categoryTree: [CategoryDTO!]!
   config: [ConfigDTO!]!
 
   """内部调试审计：按 queueName 与 jobId 查询单任务记录"""
