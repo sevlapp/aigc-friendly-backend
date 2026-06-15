@@ -1,7 +1,6 @@
 // src/adapters/api/graphql/blog/dto/post.dto.ts
 
 import { Field, ObjectType } from '@nestjs/graphql';
-import { CategoryView, TagView } from '@src/modules/blog/blog.types';
 
 @ObjectType()
 export class PostDTO {

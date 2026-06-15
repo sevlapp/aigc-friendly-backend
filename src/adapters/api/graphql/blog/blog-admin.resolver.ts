@@ -62,7 +62,7 @@ import {
   mapConfigViewToDTO,
   mapBlogStatsToDTO,
   mapArchiveStatsToDTO,
-} from './mappers/post.mapper';
+} from './blog-mappers';
 
 /**
  * 博客管理端 Resolver

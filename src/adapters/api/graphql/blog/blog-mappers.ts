@@ -1,23 +1,19 @@
-// src/adapters/api/graphql/blog/mappers/post.mapper.ts
+// src/adapters/api/graphql/blog/blog-mappers.ts
 
 import type {
   ArchiveStats,
   BlogStats,
+  CategoryTreeView,
   CategoryView,
   CommentView,
   ConfigView,
   LinkView,
   PostView,
   TagView,
-  CategoryTreeView,
 } from '@src/modules/blog/blog.types';
-import { PostDTO, TagDTO, CategoryDTO } from '../dto/post.dto';
-import { CommentDTO as PublicCommentDTO } from '../dto/comment.dto';
-import { LinkDTO, ConfigDTO, BlogStatsDTO, ArchiveStatsDTO } from '../dto/comment.dto';
+import { ArchiveStatsDTO, BlogStatsDTO, CommentDTO, ConfigDTO, LinkDTO } from './dto/comment.dto';
+import { CategoryDTO, PostDTO, TagDTO } from './dto/post.dto';
 
-/**
- * Post View -> PostDTO 映射
- */
 export function mapPostViewToDTO(view: PostView): PostDTO {
   return {
     ...view,
@@ -25,64 +21,42 @@ export function mapPostViewToDTO(view: PostView): PostDTO {
   };
 }
 
-/**
- * Tag View -> TagDTO 映射
- */
 export function mapTagViewToDTO(view: TagView): TagDTO {
   return { ...view };
 }
 
-/**
- * Category View -> CategoryDTO 映射
- */
 export function mapCategoryViewToDTO(view: CategoryView): CategoryDTO {
   return { ...view };
 }
 
-/**
- * Category Tree View -> CategoryDTO 映射
- */
-export function mapCategoryTreeViewToDTO(view: CategoryTreeView): CategoryDTO {
+export function mapCategoryTreeViewToDTO(
+  view: CategoryView & { children: CategoryTreeView[] },
+): CategoryDTO {
   return {
     ...view,
     children: view.children.map(mapCategoryTreeViewToDTO),
   };
 }
 
-/**
- * Comment View -> CommentDTO 映射
- */
-export function mapCommentViewToDTO(view: CommentView): PublicCommentDTO {
+export function mapCommentViewToDTO(view: CommentView): CommentDTO {
   return {
     ...view,
     replies: view.replies?.map(mapCommentViewToDTO),
   };
 }
 
-/**
- * Link View -> LinkDTO 映射
- */
 export function mapLinkViewToDTO(view: LinkView): LinkDTO {
   return { ...view };
 }
 
-/**
- * Config View -> ConfigDTO 映射
- */
 export function mapConfigViewToDTO(view: ConfigView): ConfigDTO {
   return { ...view };
 }
 
-/**
- * BlogStats -> BlogStatsDTO 映射
- */
 export function mapBlogStatsToDTO(stats: BlogStats): BlogStatsDTO {
   return { ...stats };
 }
 
-/**
- * ArchiveStats -> ArchiveStatsDTO 映射
- */
 export function mapArchiveStatsToDTO(stats: ArchiveStats): ArchiveStatsDTO {
   return { ...stats };
 }

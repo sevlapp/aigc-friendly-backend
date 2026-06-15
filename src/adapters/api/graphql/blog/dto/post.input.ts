@@ -13,7 +13,7 @@ import {
 } from 'class-validator';
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { trimText } from '@src/adapters/api/graphql/common/input-normalizers';
-import { PostStatus, PostVisibility } from '@app-types/models/blog.types';
+import { PostStatus, PostVisibility } from '@src/modules/blog/entities/post.entity';
 
 @InputType()
 export class CreatePostInput {

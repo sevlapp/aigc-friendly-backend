@@ -13,7 +13,7 @@ import {
 } from 'class-validator';
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { trimText } from '@src/adapters/api/graphql/common/input-normalizers';
-import { CommentStatus } from '@app-types/models/blog.types';
+import { CommentStatus } from '@src/modules/blog/entities/comment.entity';
 
 @InputType()
 export class CreateCommentInput {

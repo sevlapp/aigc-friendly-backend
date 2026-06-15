@@ -2,7 +2,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 import { PostEntity, PostStatus, PostVisibility } from '../entities/post.entity';
 import { CategoryEntity } from '../entities/category.entity';
 import { TagEntity } from '../entities/tag.entity';
@@ -269,12 +269,12 @@ export class BlogQueryService {
     const viewCountResult = await this.postRepository
       .createQueryBuilder('post')
       .select('SUM(post.viewCount)', 'total')
-      .getRawOne<{ total: string | null }>();
+      .getRawOne();
 
     const likeCountResult = await this.postRepository
       .createQueryBuilder('post')
       .select('SUM(post.likeCount)', 'total')
-      .getRawOne<{ total: string | null }>();
+      .getRawOne();
 
     return {
       totalPosts,
@@ -295,7 +295,7 @@ export class BlogQueryService {
       .where('post.status = :status', { status: PostStatus.PUBLISHED })
       .groupBy('YEAR(post.createdAt), MONTH(post.createdAt)')
       .orderBy('year DESC, month DESC')
-      .getRawMany<{ year: string; month: string; count: string }>();
+      .getRawMany();
 
     return result.map((row) => ({
       year: Number(row.year),
@@ -354,7 +354,7 @@ export class BlogQueryService {
       .where('comment.postId IN (:...postIds)', { postIds })
       .andWhere('comment.status = :status', { status: CommentStatus.APPROVED })
       .groupBy('comment.postId')
-      .getRawMany<{ postId: number; count: string }>();
+      .getRawMany();
 
     return result.reduce(
       (acc, row) => {
@@ -372,13 +372,11 @@ export class BlogQueryService {
       .addSelect('COUNT(*)', 'count')
       .where('post.status = :status', { status: PostStatus.PUBLISHED })
       .groupBy('post.categoryId')
-      .getRawMany<{ categoryId: number | null; count: string }>();
+      .getRawMany();
 
     return result.reduce(
       (acc, row) => {
-        if (row.categoryId !== null) {
-          acc[row.categoryId] = Number(row.count);
-        }
+        acc[row.categoryId] = Number(row.count);
         return acc;
       },
       {} as Record<number, number>,

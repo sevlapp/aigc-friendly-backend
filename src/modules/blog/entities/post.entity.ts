@@ -10,6 +10,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { PostStatus, PostVisibility } from '@app-types/models/blog.types';
+import { CategoryEntity } from './category.entity';
 import { TagEntity } from './tag.entity';
 import { CommentEntity } from './comment.entity';
 

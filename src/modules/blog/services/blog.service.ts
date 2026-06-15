@@ -3,8 +3,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import * as crypto from 'crypto';
-import xss from 'xss';
 import type { PersistenceTransactionContext } from '@app-types/common/transaction.types';
 import { getTypeOrmEntityManager } from '@src/infrastructure/database/transaction/typeorm-persistence-transaction-context';
 import { PostEntity, PostStatus, PostVisibility } from '../entities/post.entity';
@@ -26,6 +24,7 @@ import type {
   UpdatePostInput,
   UpdateTagInput,
 } from '../blog.types';
+import xss from 'xss';
 
 @Injectable()
 export class BlogService {
@@ -335,6 +334,7 @@ export class BlogService {
   }
 
   private md5(str: string): string {
+    const crypto = require('crypto');
     return crypto.createHash('md5').update(str.toLowerCase().trim()).digest('hex');
   }
 }

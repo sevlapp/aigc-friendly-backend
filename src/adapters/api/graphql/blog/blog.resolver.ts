@@ -75,7 +75,7 @@ import {
   mapConfigViewToDTO,
   mapBlogStatsToDTO,
   mapArchiveStatsToDTO,
-} from './mappers/post.mapper';
+} from './blog-mappers';
 
 @Resolver()
 export class BlogResolver {
