@@ -33,10 +33,12 @@ export class MagicItemCraftService {
       jobName: BULLMQ_JOBS.MAGIC_WORKSHOP.CRAFT,
       payload: {
         itemName: input.itemName,
-        itemType: input.itemType as MagicItemTypeEnum,
+        itemType: input.itemType,
         materialLevel: input.materialLevel,
         requestNote: input.requestNote,
-        traceId: input.traceId || `magic-craft-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+        traceId:
+          input.traceId ||
+          `magic-craft-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
       },
       dedupKey: input.dedupKey,
       traceId: input.traceId,
@@ -112,7 +114,9 @@ export class MagicItemCraftService {
     return entity ? this.toView(entity) : null;
   }
 
-  private getRepository(transactionContext?: PersistenceTransactionContext): Repository<MagicItemCraftTaskEntity> {
+  private getRepository(
+    transactionContext?: PersistenceTransactionContext,
+  ): Repository<MagicItemCraftTaskEntity> {
     if (transactionContext) {
       return getTypeOrmEntityManager(transactionContext).getRepository(MagicItemCraftTaskEntity);
     }

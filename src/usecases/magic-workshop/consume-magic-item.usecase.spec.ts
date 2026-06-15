@@ -110,7 +110,7 @@ describe('ConsumeMagicItemCraftTaskUsecase', () => {
     });
 
     it('应处理未知的道具类型', () => {
-      const result = generateResultDescription('神秘物品', 'UNKNOWN_TYPE' as any, 'RARE');
+      const result = generateResultDescription('神秘物品', 'UNKNOWN_TYPE', 'RARE');
       expect(result).toContain('神秘物品');
       expect(result).toContain('物品');
     });

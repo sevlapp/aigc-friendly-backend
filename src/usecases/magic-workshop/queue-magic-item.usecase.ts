@@ -105,7 +105,8 @@ export class QueueMagicItemUsecase {
         dedupKey: input.input.dedupKey,
       });
     } catch (error: unknown) {
-      const normalizedError = error instanceof Error ? error : new Error('magic_craft_enqueue_failed');
+      const normalizedError =
+        error instanceof Error ? error : new Error('magic_craft_enqueue_failed');
       const fallbackJobId = `magic-craft-enqueue-failed:${input.occurredAt.getTime()}`;
       const traceId = input.input.traceId ?? `magic-craft-enqueue:${input.occurredAt.getTime()}`;
 
@@ -130,6 +131,6 @@ export class QueueMagicItemUsecase {
   }
 
   private resolveSource(): AsyncTaskRecordSource {
-    return 'user_action' as AsyncTaskRecordSource;
+    return 'user_action';
   }
 }

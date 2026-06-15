@@ -3,6 +3,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
+import * as crypto from 'crypto';
+import xss from 'xss';
 import type { PersistenceTransactionContext } from '@app-types/common/transaction.types';
 import { getTypeOrmEntityManager } from '@src/infrastructure/database/transaction/typeorm-persistence-transaction-context';
 import { PostEntity, PostStatus, PostVisibility } from '../entities/post.entity';
@@ -24,7 +26,6 @@ import type {
   UpdatePostInput,
   UpdateTagInput,
 } from '../blog.types';
-const xss = require('xss');
 
 @Injectable()
 export class BlogService {
@@ -50,9 +51,10 @@ export class BlogService {
     const entityManager = transactionContext ? getTypeOrmEntityManager(transactionContext) : null;
     const repo = entityManager?.getRepository(PostEntity) || this.postRepository;
 
-    const tags = input.tagIds && input.tagIds.length > 0
-      ? await this.tagRepository.findBy({ id: In(input.tagIds) })
-      : [];
+    const tags =
+      input.tagIds && input.tagIds.length > 0
+        ? await this.tagRepository.findBy({ id: In(input.tagIds) })
+        : [];
 
     const now = new Date();
     const post = repo.create({
@@ -83,9 +85,8 @@ export class BlogService {
     if (!post) return null;
 
     if (input.tagIds !== undefined) {
-      const tags = input.tagIds.length > 0
-        ? await this.tagRepository.findBy({ id: In(input.tagIds) })
-        : [];
+      const tags =
+        input.tagIds.length > 0 ? await this.tagRepository.findBy({ id: In(input.tagIds) }) : [];
       post.tags = tags;
     }
 
@@ -104,7 +105,10 @@ export class BlogService {
     return repo.save(post);
   }
 
-  async deletePost(id: number, transactionContext?: PersistenceTransactionContext): Promise<boolean> {
+  async deletePost(
+    id: number,
+    transactionContext?: PersistenceTransactionContext,
+  ): Promise<boolean> {
     const entityManager = transactionContext ? getTypeOrmEntityManager(transactionContext) : null;
     const repo = entityManager?.getRepository(PostEntity) || this.postRepository;
 
@@ -331,7 +335,6 @@ export class BlogService {
   }
 
   private md5(str: string): string {
-    const crypto = require('crypto');
     return crypto.createHash('md5').update(str.toLowerCase().trim()).digest('hex');
   }
 }

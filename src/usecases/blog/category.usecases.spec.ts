@@ -1,6 +1,10 @@
 // src/usecases/blog/category.usecases.spec.ts
 
-import { CreateCategoryUsecase, UpdateCategoryUsecase, DeleteCategoryUsecase } from './category.usecases';
+import {
+  CreateCategoryUsecase,
+  UpdateCategoryUsecase,
+  DeleteCategoryUsecase,
+} from './category.usecases';
 import type { CreateCategoryInput, UpdateCategoryInput } from '@src/modules/blog/blog.types';
 
 const mockBlogService = {
@@ -19,10 +23,7 @@ describe('Category Use Cases', () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
-      usecase = new CreateCategoryUsecase(
-        mockTransactionRunner as any,
-        mockBlogService as any,
-      );
+      usecase = new CreateCategoryUsecase(mockTransactionRunner, mockBlogService as any);
     });
 
     describe('execute', () => {
@@ -102,10 +103,7 @@ describe('Category Use Cases', () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
-      usecase = new UpdateCategoryUsecase(
-        mockTransactionRunner as any,
-        mockBlogService as any,
-      );
+      usecase = new UpdateCategoryUsecase(mockTransactionRunner, mockBlogService as any);
     });
 
     describe('execute', () => {
@@ -170,10 +168,7 @@ describe('Category Use Cases', () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
-      usecase = new DeleteCategoryUsecase(
-        mockTransactionRunner as any,
-        mockBlogService as any,
-      );
+      usecase = new DeleteCategoryUsecase(mockTransactionRunner, mockBlogService as any);
     });
 
     describe('execute', () => {
@@ -195,7 +190,9 @@ describe('Category Use Cases', () => {
       });
 
       it('should throw error when deletion fails', async () => {
-        mockBlogService.deleteCategory.mockRejectedValue(new Error('Cannot delete category with children'));
+        mockBlogService.deleteCategory.mockRejectedValue(
+          new Error('Cannot delete category with children'),
+        );
 
         await expect(usecase.execute(1)).rejects.toThrow('Cannot delete category with children');
       });

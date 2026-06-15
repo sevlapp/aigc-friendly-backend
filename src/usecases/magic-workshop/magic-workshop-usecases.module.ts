@@ -12,10 +12,6 @@ import { QueueMagicItemUsecase } from './queue-magic-item.usecase';
     ConsumeMagicItemCraftTaskUsecase,
     GetMagicItemCraftTaskUsecase,
   ],
-  exports: [
-    QueueMagicItemUsecase,
-    ConsumeMagicItemCraftTaskUsecase,
-    GetMagicItemCraftTaskUsecase,
-  ],
+  exports: [QueueMagicItemUsecase, ConsumeMagicItemCraftTaskUsecase, GetMagicItemCraftTaskUsecase],
 })
 export class MagicWorkshopUsecasesModule {}

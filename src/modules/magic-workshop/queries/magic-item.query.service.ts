@@ -40,7 +40,9 @@ export class MagicItemCraftQueryService {
     return entity ? this.toView(entity) : null;
   }
 
-  private getRepository(transactionContext?: PersistenceTransactionContext): Repository<MagicItemCraftTaskEntity> {
+  private getRepository(
+    transactionContext?: PersistenceTransactionContext,
+  ): Repository<MagicItemCraftTaskEntity> {
     if (transactionContext) {
       return getTypeOrmEntityManager(transactionContext).getRepository(MagicItemCraftTaskEntity);
     }

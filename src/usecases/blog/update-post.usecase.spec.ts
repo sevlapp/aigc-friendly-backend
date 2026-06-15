@@ -17,10 +17,7 @@ describe('UpdatePostUsecase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    usecase = new UpdatePostUsecase(
-      mockTransactionRunner as any,
-      mockBlogService as any,
-    );
+    usecase = new UpdatePostUsecase(mockTransactionRunner, mockBlogService as any);
   });
 
   describe('execute', () => {
@@ -186,7 +183,9 @@ describe('UpdatePostUsecase', () => {
         title: 'Invalid ID',
       };
 
-      mockBlogService.updatePost.mockRejectedValue(new Error('Validation error: id must be positive'));
+      mockBlogService.updatePost.mockRejectedValue(
+        new Error('Validation error: id must be positive'),
+      );
 
       await expect(usecase.execute(invalidInput)).rejects.toThrow(
         'Validation error: id must be positive',

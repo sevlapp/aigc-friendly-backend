@@ -8,9 +8,21 @@ import { DeletePostUsecase } from '@src/usecases/blog/delete-post.usecase';
 import { CreateCommentUsecase } from '@src/usecases/blog/create-comment.usecase';
 import { UpdateCommentUsecase } from '@src/usecases/blog/update-comment.usecase';
 import { ApproveCommentUsecase } from '@src/usecases/blog/approve-comment.usecase';
-import { CreateCategoryUsecase, UpdateCategoryUsecase, DeleteCategoryUsecase } from '@src/usecases/blog/category.usecases';
-import { CreateTagUsecase, UpdateTagUsecase, DeleteTagUsecase } from '@src/usecases/blog/tag.usecases';
-import { CreateLinkUsecase, UpdateLinkUsecase, DeleteLinkUsecase } from '@src/usecases/blog/link.usecases';
+import {
+  CreateCategoryUsecase,
+  UpdateCategoryUsecase,
+  DeleteCategoryUsecase,
+} from '@src/usecases/blog/category.usecases';
+import {
+  CreateTagUsecase,
+  UpdateTagUsecase,
+  DeleteTagUsecase,
+} from '@src/usecases/blog/tag.usecases';
+import {
+  CreateLinkUsecase,
+  UpdateLinkUsecase,
+  DeleteLinkUsecase,
+} from '@src/usecases/blog/link.usecases';
 import { UpdateConfigUsecase } from '@src/usecases/blog/config.usecase';
 import { GetPostByIdUsecase } from '@src/usecases/blog/get-post.usecase';
 import {
@@ -30,68 +42,40 @@ import {
   GetLinksUsecase,
   GetConfigUsecase,
 } from '@src/usecases/blog/post-queries.usecase';
-import { ArchiveStatsDTO, BlogStatsDTO, CommentDTO, ConfigDTO, LinkDTO, PostListResult } from './dto/comment.dto';
+import {
+  ArchiveStatsDTO,
+  BlogStatsDTO,
+  CommentDTO,
+  ConfigDTO,
+  LinkDTO,
+  PostListResult,
+} from './dto/comment.dto';
 import { CategoryDTO, PostDTO, TagDTO } from './dto/post.dto';
 import { CreatePostInput, UpdatePostInput } from './dto/post.input';
-import { CreateCommentInput, UpdateCommentInput, CreateCategoryInput, UpdateCategoryInput } from './dto/comment.input';
+import {
+  CreateCommentInput,
+  UpdateCommentInput,
+  CreateCategoryInput,
+  UpdateCategoryInput,
+} from './dto/comment.input';
 import { CreateTagInput, UpdateTagInput, CreateLinkInput, UpdateLinkInput } from './dto/tag.input';
-import { PostByIdArgs, PostBySlugArgs, PostQueryArgs, CommentQueryArgs, UpdateConfigInput } from './dto/query.input';
-import type {
-  ArchiveStats,
-  BlogStats,
-  CategoryTreeView,
-  CategoryView,
-  CommentView,
-  ConfigView,
-  LinkView,
-  PostView,
-  TagView,
-} from '@src/modules/blog/blog.types';
-
-function mapPostViewToDTO(view: PostView): PostDTO {
-  return {
-    ...view,
-    tags: view.tags.map(mapTagViewToDTO),
-  };
-}
-
-function mapTagViewToDTO(view: TagView): TagDTO {
-  return { ...view };
-}
-
-function mapCategoryViewToDTO(view: CategoryView): CategoryDTO {
-  return { ...view };
-}
-
-function mapCategoryTreeViewToDTO(view: CategoryView & { children: CategoryTreeView[] }): CategoryDTO {
-  return {
-    ...view,
-    children: view.children.map(mapCategoryTreeViewToDTO),
-  };
-}
-
-function mapCommentViewToDTO(view: CommentView): CommentDTO {
-  return {
-    ...view,
-    replies: view.replies?.map(mapCommentViewToDTO),
-  };
-}
-
-function mapLinkViewToDTO(view: LinkView): LinkDTO {
-  return { ...view };
-}
-
-function mapConfigViewToDTO(view: ConfigView): ConfigDTO {
-  return { ...view };
-}
-
-function mapBlogStatsToDTO(stats: BlogStats): BlogStatsDTO {
-  return { ...stats };
-}
-
-function mapArchiveStatsToDTO(stats: ArchiveStats): ArchiveStatsDTO {
-  return { ...stats };
-}
+import {
+  PostByIdArgs,
+  PostBySlugArgs,
+  PostQueryArgs,
+  UpdateConfigInput,
+} from './dto/query.input';
+import {
+  mapPostViewToDTO,
+  mapTagViewToDTO,
+  mapCategoryViewToDTO,
+  mapCategoryTreeViewToDTO,
+  mapCommentViewToDTO,
+  mapLinkViewToDTO,
+  mapConfigViewToDTO,
+  mapBlogStatsToDTO,
+  mapArchiveStatsToDTO,
+} from './mappers/post.mapper';
 
 @Resolver()
 export class BlogResolver {
@@ -198,7 +182,7 @@ export class BlogResolver {
   @Query(() => TagDTO, { nullable: true })
   async tag(@Args('slug') slug: string): Promise<TagDTO | null> {
     const tag = await this.getTagBySlugUsecase.execute(slug);
-    return tag ? ({ ...tag }) : null;
+    return tag ? { ...tag } : null;
   }
 
   @Query(() => [CommentDTO])
@@ -292,14 +276,14 @@ export class BlogResolver {
   @ValidateInput()
   async createTag(@Args('input') input: CreateTagInput): Promise<TagDTO | null> {
     const tag = await this.createTagUsecase.execute(input);
-    return tag ? ({ ...tag }) : null;
+    return tag ? { ...tag } : null;
   }
 
   @Mutation(() => TagDTO, { nullable: true })
   @ValidateInput()
   async updateTag(@Args('input') input: UpdateTagInput): Promise<TagDTO | null> {
     const tag = await this.updateTagUsecase.execute(input);
-    return tag ? ({ ...tag }) : null;
+    return tag ? { ...tag } : null;
   }
 
   @Mutation(() => Boolean)

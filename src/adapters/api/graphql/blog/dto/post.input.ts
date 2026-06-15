@@ -1,10 +1,19 @@
 // src/adapters/api/graphql/blog/dto/post.input.ts
 
 import { Transform, TransformFnParams } from 'class-transformer';
-import { IsArray, IsBoolean, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Max, Min } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { trimText } from '@src/adapters/api/graphql/common/input-normalizers';
-import { PostStatus, PostVisibility } from '@src/modules/blog/entities/post.entity';
+import { PostStatus, PostVisibility } from '@app-types/models/blog.types';
 
 @InputType()
 export class CreatePostInput {

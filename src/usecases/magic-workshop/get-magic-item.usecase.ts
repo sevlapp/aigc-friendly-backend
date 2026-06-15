@@ -19,20 +19,20 @@ export class GetMagicItemCraftTaskUsecase {
   constructor(private readonly magicItemCraftQueryService: MagicItemCraftQueryService) {}
 
   async getById(id: number): Promise<GetMagicItemCraftTaskByJobIdResult | null> {
-  const task = await this.magicItemCraftQueryService.findById({ id });
-  if (!task) {
-    return null;
-  }
-  return {
-    id: task.id,
-    itemName: task.itemName,
-    itemType: task.itemType,
-    status: task.status,
-    qualityLevel: task.qualityLevel,
-    resultDescription: task.resultDescription,
-    failureReason: task.failureReason,
-    createdAt: task.createdAt,
-    updatedAt: task.updatedAt,
+    const task = await this.magicItemCraftQueryService.findById({ id });
+    if (!task) {
+      return null;
+    }
+    return {
+      id: task.id,
+      itemName: task.itemName,
+      itemType: task.itemType,
+      status: task.status,
+      qualityLevel: task.qualityLevel,
+      resultDescription: task.resultDescription,
+      failureReason: task.failureReason,
+      createdAt: task.createdAt,
+      updatedAt: task.updatedAt,
     };
   }
 }

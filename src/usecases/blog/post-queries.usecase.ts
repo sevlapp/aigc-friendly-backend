@@ -2,7 +2,19 @@
 
 import { Injectable } from '@nestjs/common';
 import { BlogQueryService } from '@src/modules/blog/queries/blog.query.service';
-import type { ArchiveStats, BlogStats, CategoryTreeView, CategoryView, CommentQueryOptions, CommentView, ConfigView, LinkView, PostQueryOptions, PostView, TagView } from '@src/modules/blog/blog.types';
+import type {
+  ArchiveStats,
+  BlogStats,
+  CategoryTreeView,
+  CategoryView,
+  CommentQueryOptions,
+  CommentView,
+  ConfigView,
+  LinkView,
+  PostQueryOptions,
+  PostView,
+  TagView,
+} from '@src/modules/blog/blog.types';
 
 export interface GetPostsInput {
   options: PostQueryOptions;

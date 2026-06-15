@@ -17,11 +17,7 @@ import {
   VerificationRecordStatus,
   VerificationRecordType,
 } from '@app-types/models/verification-record.types';
-import {
-  PostStatus,
-  PostVisibility,
-  CommentStatus,
-} from '@app-types/models/blog.types';
+import { PostStatus, PostVisibility, CommentStatus } from '@app-types/models/blog.types';
 import { RegisterTypeEnum } from '@app-types/services/register.types';
 import { registerEnumType } from '@nestjs/graphql';
 import { GqlPaginationMode, GqlSortDirection } from '@src/adapters/api/graphql/pagination.enums';

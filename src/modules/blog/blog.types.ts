@@ -1,6 +1,5 @@
 // src/modules/blog/blog.types.ts
 
-import type { PersistenceTransactionContext } from '@app-types/common/transaction.types';
 import { PostStatus, PostVisibility, CommentStatus } from '@app-types/models/blog.types';
 
 export type PostStatusType = PostStatus;

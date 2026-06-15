@@ -15,7 +15,7 @@ describe('DeletePostUsecase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    usecase = new DeletePostUsecase(mockTransactionRunner as any, mockBlogService as any);
+    usecase = new DeletePostUsecase(mockTransactionRunner, mockBlogService as any);
   });
 
   describe('execute', () => {
@@ -51,19 +51,19 @@ describe('DeletePostUsecase', () => {
     });
 
     it('验证 id 必须为正整数', async () => {
-      mockBlogService.deletePost.mockRejectedValue(new Error('Validation error: id must be positive'));
-
-      await expect(usecase.execute(-1)).rejects.toThrow(
-        'Validation error: id must be positive',
+      mockBlogService.deletePost.mockRejectedValue(
+        new Error('Validation error: id must be positive'),
       );
+
+      await expect(usecase.execute(-1)).rejects.toThrow('Validation error: id must be positive');
     });
 
     it('验证 id 不能为零', async () => {
-      mockBlogService.deletePost.mockRejectedValue(new Error('Validation error: id must be positive'));
-
-      await expect(usecase.execute(0)).rejects.toThrow(
-        'Validation error: id must be positive',
+      mockBlogService.deletePost.mockRejectedValue(
+        new Error('Validation error: id must be positive'),
       );
+
+      await expect(usecase.execute(0)).rejects.toThrow('Validation error: id must be positive');
     });
   });
 });

@@ -57,7 +57,9 @@ export class ConsumeMagicItemCraftTaskUsecase {
     private readonly asyncTaskRecordService: AsyncTaskRecordService,
   ) {}
 
-  async process(input: ConsumeMagicItemCraftTaskProcessInput): Promise<ConsumeMagicItemCraftTaskResult> {
+  async process(
+    input: ConsumeMagicItemCraftTaskProcessInput,
+  ): Promise<ConsumeMagicItemCraftTaskResult> {
     const occurredAt = new Date();
 
     await this.asyncTaskRecordService.recordStarted({
@@ -185,7 +187,7 @@ export class ConsumeMagicItemCraftTaskUsecase {
   }
 
   private resolveSource(): AsyncTaskRecordSource {
-    return 'system' as AsyncTaskRecordSource;
+    return 'system';
   }
 
   private resolveProcessingAttemptCount(input: { readonly attemptsMade: number }): number {

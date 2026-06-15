@@ -1,8 +1,15 @@
 // src/modules/blog/entities/post.entity.ts
 
-import { Column, Entity, Index, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { PostStatus, PostVisibility } from '@app-types/models/blog.types';
-import { CategoryEntity } from './category.entity';
 import { TagEntity } from './tag.entity';
 import { CommentEntity } from './comment.entity';
 

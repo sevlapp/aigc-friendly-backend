@@ -1,7 +1,10 @@
 // src/usecases/blog/config.usecase.ts
 
 import { Inject, Injectable } from '@nestjs/common';
-import { TRANSACTION_RUNNER, type TransactionRunner } from '@src/usecases/common/ports/transaction-runner.contract';
+import {
+  TRANSACTION_RUNNER,
+  type TransactionRunner,
+} from '@src/usecases/common/ports/transaction-runner.contract';
 import { BlogService } from '@src/modules/blog/services/blog.service';
 import type { ConfigView, UpdateConfigInput } from '@src/modules/blog/blog.types';
 import { BlogQueryService } from '@src/modules/blog/queries/blog.query.service';

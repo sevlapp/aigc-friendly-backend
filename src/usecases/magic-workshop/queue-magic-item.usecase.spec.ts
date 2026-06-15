@@ -82,7 +82,9 @@ describe('QueueMagicItemUsecase', () => {
     });
 
     it('当 enqueueCraft 失败时应记录失败并抛出错误', async () => {
-      mockMagicItemCraftService.enqueueCraft.mockRejectedValue(new Error('Queue connection failed'));
+      mockMagicItemCraftService.enqueueCraft.mockRejectedValue(
+        new Error('Queue connection failed'),
+      );
       mockAsyncTaskRecordService.recordEnqueueFailed.mockResolvedValue(undefined);
 
       await expect(usecase.execute(baseInput)).rejects.toThrow('Queue connection failed');
@@ -104,7 +106,11 @@ describe('QueueMagicItemUsecase', () => {
       });
       mockAsyncTaskRecordService.recordEnqueued.mockResolvedValue(undefined);
 
-      const result = await usecase.execute({ ...baseInput, itemType: 'WEAPON', itemName: '火焰剑' });
+      const result = await usecase.execute({
+        ...baseInput,
+        itemType: 'WEAPON',
+        itemName: '火焰剑',
+      });
       expect(result.status).toBe('PENDING');
       expect(mockMagicItemCraftService.enqueueCraft).toHaveBeenCalledWith(
         expect.objectContaining({ itemType: 'WEAPON' }),
@@ -126,7 +132,11 @@ describe('QueueMagicItemUsecase', () => {
       });
       mockAsyncTaskRecordService.recordEnqueued.mockResolvedValue(undefined);
 
-      const result = await usecase.execute({ ...baseInput, itemType: 'TOOL', itemName: '会唱歌的茶壶' });
+      const result = await usecase.execute({
+        ...baseInput,
+        itemType: 'TOOL',
+        itemName: '会唱歌的茶壶',
+      });
       expect(result.status).toBe('PENDING');
       expect(mockMagicItemCraftService.enqueueCraft).toHaveBeenCalledWith(
         expect.objectContaining({ itemType: 'TOOL' }),
@@ -148,7 +158,11 @@ describe('QueueMagicItemUsecase', () => {
       });
       mockAsyncTaskRecordService.recordEnqueued.mockResolvedValue(undefined);
 
-      const result = await usecase.execute({ ...baseInput, itemType: 'ARMOR', itemName: '隐身斗篷' });
+      const result = await usecase.execute({
+        ...baseInput,
+        itemType: 'ARMOR',
+        itemName: '隐身斗篷',
+      });
       expect(result.status).toBe('PENDING');
       expect(mockMagicItemCraftService.enqueueCraft).toHaveBeenCalledWith(
         expect.objectContaining({ itemType: 'ARMOR' }),

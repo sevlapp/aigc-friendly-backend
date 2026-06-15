@@ -6,10 +6,7 @@ import { MagicItemCraftService } from './services/magic-item-craft.service';
 import { MagicItemCraftQueryService } from './queries/magic-item.query.service'; // 新增
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([MagicItemCraftTaskEntity]),
-    BullMqModule,
-  ],
+  imports: [TypeOrmModule.forFeature([MagicItemCraftTaskEntity]), BullMqModule],
   providers: [
     MagicItemCraftService,
     MagicItemCraftQueryService, // 新增

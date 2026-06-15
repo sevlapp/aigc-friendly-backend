@@ -35,7 +35,7 @@ export class MagicWorkshopResolver {
   ): Promise<MagicItemCraftTaskResult> {
     const result = await this.queueMagicItemUsecase.execute({
       itemName: input.itemName,
-      itemType: input.itemType as 'WEAPON' | 'ARMOR' | 'TOOL' | 'TOY',
+      itemType: input.itemType,
       materialLevel: input.materialLevel,
       requestNote: input.requestNote,
       dedupKey: input.dedupKey,

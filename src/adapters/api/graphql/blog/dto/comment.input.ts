@@ -1,10 +1,19 @@
 // src/adapters/api/graphql/blog/dto/comment.input.ts
 
 import { Transform, TransformFnParams } from 'class-transformer';
-import { IsBoolean, IsEmail, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { trimText } from '@src/adapters/api/graphql/common/input-normalizers';
-import { CommentStatus } from '@src/modules/blog/entities/comment.entity';
+import { CommentStatus } from '@app-types/models/blog.types';
 
 @InputType()
 export class CreateCommentInput {

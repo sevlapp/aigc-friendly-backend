@@ -57,7 +57,13 @@ export class MagicItemCraftTaskEntity {
   @Column({ name: 'material_level', type: 'int', comment: '材料等级 1-5' })
   materialLevel!: number;
 
-  @Column({ name: 'request_note', type: 'varchar', length: 512, nullable: true, comment: '请求备注' })
+  @Column({
+    name: 'request_note',
+    type: 'varchar',
+    length: 512,
+    nullable: true,
+    comment: '请求备注',
+  })
   requestNote!: string | null;
 
   @Column({
@@ -81,7 +87,13 @@ export class MagicItemCraftTaskEntity {
   @Column({ name: 'result_description', type: 'text', nullable: true, comment: '制作结果描述' })
   resultDescription!: string | null;
 
-  @Column({ name: 'failure_reason', type: 'varchar', length: 256, nullable: true, comment: '失败原因' })
+  @Column({
+    name: 'failure_reason',
+    type: 'varchar',
+    length: 256,
+    nullable: true,
+    comment: '失败原因',
+  })
   failureReason!: string | null;
 
   @CreateDateColumn({

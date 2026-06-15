@@ -19,10 +19,7 @@ describe('Tag Use Cases', () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
-      usecase = new CreateTagUsecase(
-        mockTransactionRunner as any,
-        mockBlogService as any,
-      );
+      usecase = new CreateTagUsecase(mockTransactionRunner, mockBlogService as any);
     });
 
     describe('execute', () => {
@@ -81,10 +78,7 @@ describe('Tag Use Cases', () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
-      usecase = new UpdateTagUsecase(
-        mockTransactionRunner as any,
-        mockBlogService as any,
-      );
+      usecase = new UpdateTagUsecase(mockTransactionRunner, mockBlogService as any);
     });
 
     describe('execute', () => {
@@ -145,10 +139,7 @@ describe('Tag Use Cases', () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
-      usecase = new DeleteTagUsecase(
-        mockTransactionRunner as any,
-        mockBlogService as any,
-      );
+      usecase = new DeleteTagUsecase(mockTransactionRunner, mockBlogService as any);
     });
 
     describe('execute', () => {

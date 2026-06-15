@@ -1,7 +1,10 @@
 // src/usecases/blog/delete-post.usecase.ts
 
 import { Inject, Injectable } from '@nestjs/common';
-import { TRANSACTION_RUNNER, type TransactionRunner } from '@src/usecases/common/ports/transaction-runner.contract';
+import {
+  TRANSACTION_RUNNER,
+  type TransactionRunner,
+} from '@src/usecases/common/ports/transaction-runner.contract';
 import { BlogService } from '@src/modules/blog/services/blog.service';
 
 @Injectable()

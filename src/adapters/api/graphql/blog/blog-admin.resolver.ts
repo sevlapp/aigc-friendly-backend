@@ -13,9 +13,21 @@ import { UpdateCommentUsecase } from '@src/usecases/blog/update-comment.usecase'
 import { ApproveCommentUsecase } from '@src/usecases/blog/approve-comment.usecase';
 import { RejectCommentUsecase } from '@src/usecases/blog/reject-comment.usecase';
 import { DeleteCommentUsecase } from '@src/usecases/blog/delete-comment.usecase';
-import { CreateCategoryUsecase, UpdateCategoryUsecase, DeleteCategoryUsecase } from '@src/usecases/blog/category.usecases';
-import { CreateTagUsecase, UpdateTagUsecase, DeleteTagUsecase } from '@src/usecases/blog/tag.usecases';
-import { CreateLinkUsecase, UpdateLinkUsecase, DeleteLinkUsecase } from '@src/usecases/blog/link.usecases';
+import {
+  CreateCategoryUsecase,
+  UpdateCategoryUsecase,
+  DeleteCategoryUsecase,
+} from '@src/usecases/blog/category.usecases';
+import {
+  CreateTagUsecase,
+  UpdateTagUsecase,
+  DeleteTagUsecase,
+} from '@src/usecases/blog/tag.usecases';
+import {
+  CreateLinkUsecase,
+  UpdateLinkUsecase,
+  DeleteLinkUsecase,
+} from '@src/usecases/blog/link.usecases';
 import { UpdateConfigUsecase } from '@src/usecases/blog/config.usecase';
 import { GetPostByIdUsecase } from '@src/usecases/blog/get-post.usecase';
 import {
@@ -41,54 +53,16 @@ import { CreatePostInput, UpdatePostInput } from './dto/post.input';
 import { UpdateCommentInput, CreateCategoryInput, UpdateCategoryInput } from './dto/comment.input';
 import { CreateTagInput, UpdateTagInput, CreateLinkInput, UpdateLinkInput } from './dto/tag.input';
 import { PostQueryArgs, CommentQueryArgs, UpdateConfigInput } from './dto/query.input';
-import type {
-  ArchiveStats,
-  BlogStats,
-  CategoryView,
-  CommentView,
-  ConfigView,
-  LinkView,
-  PostView,
-  TagView,
-} from '@src/modules/blog/blog.types';
-
-function mapPostViewToDTO(view: PostView): PostDTO {
-  return {
-    ...view,
-    tags: view.tags.map(mapTagViewToDTO),
-  };
-}
-
-function mapTagViewToDTO(view: TagView): TagDTO {
-  return { ...view };
-}
-
-function mapCategoryViewToDTO(view: CategoryView): CategoryDTO {
-  return { ...view };
-}
-
-function mapCommentViewToDTO(view: CommentView): CommentDTO {
-  return {
-    ...view,
-    replies: view.replies?.map(mapCommentViewToDTO),
-  };
-}
-
-function mapLinkViewToDTO(view: LinkView): LinkDTO {
-  return { ...view };
-}
-
-function mapConfigViewToDTO(view: ConfigView): ConfigDTO {
-  return { ...view };
-}
-
-function mapBlogStatsToDTO(stats: BlogStats): BlogStatsDTO {
-  return { ...stats };
-}
-
-function mapArchiveStatsToDTO(stats: ArchiveStats): ArchiveStatsDTO {
-  return { ...stats };
-}
+import {
+  mapPostViewToDTO,
+  mapTagViewToDTO,
+  mapCategoryViewToDTO,
+  mapCommentViewToDTO,
+  mapLinkViewToDTO,
+  mapConfigViewToDTO,
+  mapBlogStatsToDTO,
+  mapArchiveStatsToDTO,
+} from './mappers/post.mapper';
 
 /**
  * 博客管理端 Resolver
@@ -205,14 +179,18 @@ export class BlogAdminResolver {
 
   @Mutation(() => CategoryDTO, { nullable: true })
   @ValidateInput()
-  async adminCreateCategory(@Args('input') input: CreateCategoryInput): Promise<CategoryDTO | null> {
+  async adminCreateCategory(
+    @Args('input') input: CreateCategoryInput,
+  ): Promise<CategoryDTO | null> {
     const category = await this.createCategoryUsecase.execute(input);
     return category ? mapCategoryViewToDTO(category) : null;
   }
 
   @Mutation(() => CategoryDTO, { nullable: true })
   @ValidateInput()
-  async adminUpdateCategory(@Args('input') input: UpdateCategoryInput): Promise<CategoryDTO | null> {
+  async adminUpdateCategory(
+    @Args('input') input: UpdateCategoryInput,
+  ): Promise<CategoryDTO | null> {
     const category = await this.updateCategoryUsecase.execute(input);
     return category ? mapCategoryViewToDTO(category) : null;
   }

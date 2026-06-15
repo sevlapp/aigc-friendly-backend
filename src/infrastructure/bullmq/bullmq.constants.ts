@@ -22,7 +22,8 @@ export const BULLMQ_JOBS = {
 
 export type BullMqEmailJobName = (typeof BULLMQ_JOBS.EMAIL)[keyof typeof BULLMQ_JOBS.EMAIL];
 export type BullMqAiJobName = (typeof BULLMQ_JOBS.AI)[keyof typeof BULLMQ_JOBS.AI];
-export type BullMqMagicWorkshopJobName = (typeof BULLMQ_JOBS.MAGIC_WORKSHOP)[keyof typeof BULLMQ_JOBS.MAGIC_WORKSHOP];
+export type BullMqMagicWorkshopJobName =
+  (typeof BULLMQ_JOBS.MAGIC_WORKSHOP)[keyof typeof BULLMQ_JOBS.MAGIC_WORKSHOP];
 
 export const BULLMQ_QUEUE_JOBS: Readonly<Record<BullMqQueueName, ReadonlyArray<string>>> = {
   [BULLMQ_QUEUES.EMAIL]: Object.values(BULLMQ_JOBS.EMAIL),

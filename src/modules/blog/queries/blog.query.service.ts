@@ -2,7 +2,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { Repository } from 'typeorm';
 import { PostEntity, PostStatus, PostVisibility } from '../entities/post.entity';
 import { CategoryEntity } from '../entities/category.entity';
 import { TagEntity } from '../entities/tag.entity';
@@ -90,10 +90,9 @@ export class BlogQueryService {
     }
 
     if (options.search) {
-      query = query.andWhere(
-        '(post.title LIKE :search OR post.content LIKE :search)',
-        { search: `%${options.search}%` },
-      );
+      query = query.andWhere('(post.title LIKE :search OR post.content LIKE :search)', {
+        search: `%${options.search}%`,
+      });
     }
 
     const sortBy = options.sortBy || 'createdAt';
@@ -101,10 +100,7 @@ export class BlogQueryService {
 
     query = query.orderBy(`post.isSticky`, 'DESC').addOrderBy(`post.${sortBy}`, sortOrder);
 
-    const [posts, total] = await query
-      .skip(offset)
-      .take(pageSize)
-      .getManyAndCount();
+    const [posts, total] = await query.skip(offset).take(pageSize).getManyAndCount();
 
     const commentCounts = await this.getCommentCounts(posts.map((p) => p.id));
 
@@ -273,12 +269,12 @@ export class BlogQueryService {
     const viewCountResult = await this.postRepository
       .createQueryBuilder('post')
       .select('SUM(post.viewCount)', 'total')
-      .getRawOne();
+      .getRawOne<{ total: string | null }>();
 
     const likeCountResult = await this.postRepository
       .createQueryBuilder('post')
       .select('SUM(post.likeCount)', 'total')
-      .getRawOne();
+      .getRawOne<{ total: string | null }>();
 
     return {
       totalPosts,
@@ -299,7 +295,7 @@ export class BlogQueryService {
       .where('post.status = :status', { status: PostStatus.PUBLISHED })
       .groupBy('YEAR(post.createdAt), MONTH(post.createdAt)')
       .orderBy('year DESC, month DESC')
-      .getRawMany();
+      .getRawMany<{ year: string; month: string; count: string }>();
 
     return result.map((row) => ({
       year: Number(row.year),
@@ -358,12 +354,15 @@ export class BlogQueryService {
       .where('comment.postId IN (:...postIds)', { postIds })
       .andWhere('comment.status = :status', { status: CommentStatus.APPROVED })
       .groupBy('comment.postId')
-      .getRawMany();
+      .getRawMany<{ postId: number; count: string }>();
 
-    return result.reduce((acc, row) => {
-      acc[row.postId] = Number(row.count);
-      return acc;
-    }, {} as Record<number, number>);
+    return result.reduce(
+      (acc, row) => {
+        acc[row.postId] = Number(row.count);
+        return acc;
+      },
+      {} as Record<number, number>,
+    );
   }
 
   private async getPostCountsByCategory(): Promise<Record<number, number>> {
@@ -373,12 +372,17 @@ export class BlogQueryService {
       .addSelect('COUNT(*)', 'count')
       .where('post.status = :status', { status: PostStatus.PUBLISHED })
       .groupBy('post.categoryId')
-      .getRawMany();
+      .getRawMany<{ categoryId: number | null; count: string }>();
 
-    return result.reduce((acc, row) => {
-      acc[row.categoryId] = Number(row.count);
-      return acc;
-    }, {} as Record<number, number>);
+    return result.reduce(
+      (acc, row) => {
+        if (row.categoryId !== null) {
+          acc[row.categoryId] = Number(row.count);
+        }
+        return acc;
+      },
+      {} as Record<number, number>,
+    );
   }
 
   private mapPostEntityToView(post: PostEntity, commentCount: number): PostView {

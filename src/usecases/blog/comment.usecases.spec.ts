@@ -31,7 +31,7 @@ describe('Comment Use Cases', () => {
     beforeEach(() => {
       jest.clearAllMocks();
       usecase = new CreateCommentUsecase(
-        mockTransactionRunner as any,
+        mockTransactionRunner,
         mockBlogService as any,
         mockBlogQueryService as any,
       );
@@ -72,7 +72,8 @@ describe('Comment Use Cases', () => {
         const mockComment = {
           id: 1,
           ...inputWithEmail,
-          authorAvatar: 'https://www.gravatar.com/avatar/55502f40dc8b7c769880b10874abc9d0?d=identicon',
+          authorAvatar:
+            'https://www.gravatar.com/avatar/55502f40dc8b7c769880b10874abc9d0?d=identicon',
           status: CommentStatus.PENDING,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -142,7 +143,7 @@ describe('Comment Use Cases', () => {
     beforeEach(() => {
       jest.clearAllMocks();
       usecase = new UpdateCommentUsecase(
-        mockTransactionRunner as any,
+        mockTransactionRunner,
         mockBlogService as any,
         mockBlogQueryService as any,
       );
@@ -188,10 +189,7 @@ describe('Comment Use Cases', () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
-      usecase = new ApproveCommentUsecase(
-        mockTransactionRunner as any,
-        mockBlogService as any,
-      );
+      usecase = new ApproveCommentUsecase(mockTransactionRunner, mockBlogService as any);
     });
 
     describe('execute', () => {
@@ -218,10 +216,7 @@ describe('Comment Use Cases', () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
-      usecase = new RejectCommentUsecase(
-        mockTransactionRunner as any,
-        mockBlogService as any,
-      );
+      usecase = new RejectCommentUsecase(mockTransactionRunner, mockBlogService as any);
     });
 
     describe('execute', () => {

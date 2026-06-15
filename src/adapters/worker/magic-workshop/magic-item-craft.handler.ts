@@ -51,7 +51,7 @@ export class MagicItemCraftHandler {
     if (input.job.name === MAGIC_CRAFT_JOB_NAME) {
       await this.consumeMagicItemCraftTaskUsecase.fail(
         mapMagicCraftJobToFailInput({
-          job: input.job as MagicCraftJob,
+          job: input.job,
           error: input.error,
         }),
       );
@@ -60,7 +60,7 @@ export class MagicItemCraftHandler {
 
     await this.consumeMagicItemCraftTaskUsecase.fail(
       mapUnknownMagicCraftJobToFailInput({
-        job: input.job as Job<unknown, unknown>,
+        job: input.job,
         error: input.error,
       }),
     );

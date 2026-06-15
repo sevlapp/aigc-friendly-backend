@@ -1,7 +1,10 @@
 // src/usecases/blog/create-post.usecase.ts
 
 import { Inject, Injectable } from '@nestjs/common';
-import { TRANSACTION_RUNNER, type TransactionRunner } from '@src/usecases/common/ports/transaction-runner.contract';
+import {
+  TRANSACTION_RUNNER,
+  type TransactionRunner,
+} from '@src/usecases/common/ports/transaction-runner.contract';
 import { BlogService } from '@src/modules/blog/services/blog.service';
 import { PostEntity } from '@src/modules/blog/entities/post.entity';
 import type { CreatePostInput, PostView } from '@src/modules/blog/blog.types';

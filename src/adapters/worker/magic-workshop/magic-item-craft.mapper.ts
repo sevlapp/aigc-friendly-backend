@@ -1,6 +1,12 @@
-import type { ConsumeMagicItemCraftTaskFailInput, ConsumeMagicItemCraftTaskProcessInput } from '@src/usecases/magic-workshop/consume-magic-item.usecase';
+import type {
+  ConsumeMagicItemCraftTaskFailInput,
+  ConsumeMagicItemCraftTaskProcessInput,
+} from '@src/usecases/magic-workshop/consume-magic-item.usecase';
 import type { Job } from 'bullmq';
-import type { MagicCraftPayload, MagicCraftResult } from '@src/infrastructure/bullmq/contracts/magic-workshop-queue.runtime';
+import type {
+  MagicCraftPayload,
+  MagicCraftResult,
+} from '@src/infrastructure/bullmq/contracts/magic-workshop-queue.runtime';
 
 export const MAGIC_WORKSHOP_QUEUE_NAME = 'magic-workshop';
 export const MAGIC_CRAFT_JOB_NAME = 'craft';
@@ -32,9 +38,7 @@ export function mapMagicCraftJobToProcessInput(input: {
   };
 }
 
-export function mapMagicCraftJobToCompleteInput(input: {
-  readonly job: MagicCraftJob;
-}): {
+export function mapMagicCraftJobToCompleteInput(input: { readonly job: MagicCraftJob }): {
   queueName: string;
   jobName: string;
   jobId: string;

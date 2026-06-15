@@ -17,10 +17,7 @@ describe('CreatePostUsecase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    usecase = new CreatePostUsecase(
-      mockTransactionRunner as any,
-      mockBlogService as any,
-    );
+    usecase = new CreatePostUsecase(mockTransactionRunner, mockBlogService as any);
   });
 
   describe('execute', () => {
@@ -167,7 +164,9 @@ describe('CreatePostUsecase', () => {
       const invalidInput = { ...baseInput } as any;
       delete invalidInput.title;
 
-      mockBlogService.createPost.mockRejectedValue(new Error('Validation error: title is required'));
+      mockBlogService.createPost.mockRejectedValue(
+        new Error('Validation error: title is required'),
+      );
 
       await expect(usecase.execute(invalidInput as CreatePostInput)).rejects.toThrow(
         'Validation error: title is required',
@@ -189,7 +188,9 @@ describe('CreatePostUsecase', () => {
       const invalidInput = { ...baseInput } as any;
       delete invalidInput.content;
 
-      mockBlogService.createPost.mockRejectedValue(new Error('Validation error: content is required'));
+      mockBlogService.createPost.mockRejectedValue(
+        new Error('Validation error: content is required'),
+      );
 
       await expect(usecase.execute(invalidInput as CreatePostInput)).rejects.toThrow(
         'Validation error: content is required',

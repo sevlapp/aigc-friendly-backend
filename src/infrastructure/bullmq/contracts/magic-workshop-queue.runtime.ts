@@ -1,10 +1,6 @@
 import { MagicItemTypeEnum } from '@src/modules/magic-workshop/magic-item.types';
 import { BULLMQ_JOBS, BULLMQ_QUEUES } from '../bullmq.constants';
-import {
-  isNonEmptyString,
-  isOptionalNonEmptyString,
-  isRecord,
-} from './shared-payload-validators';
+import { isNonEmptyString, isOptionalNonEmptyString, isRecord } from './shared-payload-validators';
 
 export const MAGIC_ITEM_TYPES = ['WEAPON', 'ARMOR', 'TOOL', 'TOY'] as const;
 export type MagicItemType = (typeof MAGIC_ITEM_TYPES)[number];
@@ -34,7 +30,10 @@ export interface MagicCraftResult {
 }
 
 const isMagicItemType = (value: unknown): value is MagicItemTypeEnum => {
-  return typeof value === 'string' && Object.values(MagicItemTypeEnum).includes(value as MagicItemTypeEnum);
+  return (
+    typeof value === 'string' &&
+    Object.values(MagicItemTypeEnum).includes(value as MagicItemTypeEnum)
+  );
 };
 
 const isNumber = (value: unknown): value is number => {
