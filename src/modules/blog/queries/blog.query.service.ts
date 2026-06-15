@@ -2,7 +2,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { Repository } from 'typeorm';
 import { PostEntity, PostStatus, PostVisibility } from '../entities/post.entity';
 import { CategoryEntity } from '../entities/category.entity';
 import { TagEntity } from '../entities/tag.entity';
@@ -22,6 +22,11 @@ import type {
   PostView,
   TagView,
 } from '../blog.types';
+import {
+  mapPostEntityToView,
+  mapCommentEntityToView,
+  buildCommentTree,
+} from '../entity-mappers';
 
 @Injectable()
 export class BlogQueryService {
@@ -52,7 +57,7 @@ export class BlogQueryService {
       where: { postId: id, status: CommentStatus.APPROVED },
     });
 
-    return this.mapPostEntityToView(post, commentCount);
+    return mapPostEntityToView(post, commentCount);
   }
 
   async getPostBySlug(slug: string): Promise<PostView | null> {
@@ -67,7 +72,7 @@ export class BlogQueryService {
       where: { postId: post.id, status: CommentStatus.APPROVED },
     });
 
-    return this.mapPostEntityToView(post, commentCount);
+    return mapPostEntityToView(post, commentCount);
   }
 
   async getPosts(options: PostQueryOptions): Promise<{ posts: PostView[]; total: number }> {
@@ -105,7 +110,7 @@ export class BlogQueryService {
     const commentCounts = await this.getCommentCounts(posts.map((p) => p.id));
 
     return {
-      posts: posts.map((post) => this.mapPostEntityToView(post, commentCounts[post.id] || 0)),
+      posts: posts.map((post) => mapPostEntityToView(post, commentCounts[post.id] || 0)),
       total,
     };
   }
@@ -123,7 +128,7 @@ export class BlogQueryService {
 
     const commentCounts = await this.getCommentCounts(posts.map((p) => p.id));
 
-    return posts.map((post) => this.mapPostEntityToView(post, commentCounts[post.id] || 0));
+    return posts.map((post) => mapPostEntityToView(post, commentCounts[post.id] || 0));
   }
 
   async getCategories(): Promise<CategoryView[]> {
@@ -226,7 +231,7 @@ export class BlogQueryService {
     }
 
     const comments = await query.orderBy('comment.createdAt', 'DESC').getMany();
-    return comments.map((c) => this.mapCommentEntityToView(c));
+    return comments.map((c) => mapCommentEntityToView(c));
   }
 
   async getPostComments(postId: number): Promise<CommentView[]> {
@@ -235,7 +240,7 @@ export class BlogQueryService {
       order: { createdAt: 'ASC' },
     });
 
-    return this.buildCommentTree(comments);
+    return buildCommentTree(comments);
   }
 
   async getLinks(): Promise<LinkView[]> {
@@ -321,7 +326,7 @@ export class BlogQueryService {
       where: { postId: post.id, status: CommentStatus.APPROVED },
     });
 
-    return this.mapPostEntityToView(post, commentCount);
+    return mapPostEntityToView(post, commentCount);
   }
 
   async getPreviousPost(currentId: number): Promise<PostView | null> {
@@ -341,7 +346,7 @@ export class BlogQueryService {
       where: { postId: post.id, status: CommentStatus.APPROVED },
     });
 
-    return this.mapPostEntityToView(post, commentCount);
+    return mapPostEntityToView(post, commentCount);
   }
 
   private async getCommentCounts(postIds: number[]): Promise<Record<number, number>> {
@@ -381,81 +386,5 @@ export class BlogQueryService {
       },
       {} as Record<number, number>,
     );
-  }
-
-  private mapPostEntityToView(post: PostEntity, commentCount: number): PostView {
-    return {
-      id: post.id,
-      title: post.title,
-      slug: post.slug,
-      excerpt: post.excerpt,
-      content: post.content,
-      coverImage: post.coverImage,
-      status: post.status,
-      visibility: post.visibility,
-      viewCount: post.viewCount,
-      likeCount: post.likeCount,
-      isSticky: post.isSticky === 1,
-      categoryId: post.categoryId,
-      createdAt: post.createdAt,
-      updatedAt: post.updatedAt,
-      publishedAt: post.publishedAt,
-      tags: post.tags.map((tag) => this.mapTagEntityToView(tag)),
-      commentCount,
-    };
-  }
-
-  private mapTagEntityToView(tag: TagEntity): TagView {
-    return {
-      id: tag.id,
-      name: tag.name,
-      slug: tag.slug,
-      description: tag.description,
-      postCount: tag.postCount,
-      createdAt: tag.createdAt,
-      updatedAt: tag.updatedAt,
-    };
-  }
-
-  private mapCommentEntityToView(comment: CommentEntity): CommentView {
-    return {
-      id: comment.id,
-      postId: comment.postId,
-      parentId: comment.parentId,
-      authorName: comment.authorName,
-      authorEmail: comment.authorEmail,
-      authorAvatar: comment.authorAvatar,
-      content: comment.content,
-      status: comment.status,
-      likeCount: comment.likeCount,
-      createdAt: comment.createdAt,
-      updatedAt: comment.updatedAt,
-    };
-  }
-
-  private buildCommentTree(comments: CommentEntity[]): CommentView[] {
-    const commentMap = new Map<number, CommentView>();
-    const rootComments: CommentView[] = [];
-
-    comments.forEach((comment) => {
-      const view = this.mapCommentEntityToView(comment);
-      commentMap.set(comment.id, view);
-
-      if (!comment.parentId) {
-        rootComments.push(view);
-      }
-    });
-
-    comments.forEach((comment) => {
-      if (comment.parentId) {
-        const parent = commentMap.get(comment.parentId);
-        if (parent) {
-          if (!parent.replies) parent.replies = [];
-          parent.replies.push(commentMap.get(comment.id)!);
-        }
-      }
-    });
-
-    return rootComments;
   }
 }

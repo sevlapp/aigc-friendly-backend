@@ -4,8 +4,7 @@ import { Transform, TransformFnParams } from 'class-transformer';
 import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
 import { ArgsType, Field, InputType, Int } from '@nestjs/graphql';
 import { trimText } from '@src/adapters/api/graphql/common/input-normalizers';
-import { PostStatus } from '@src/modules/blog/entities/post.entity';
-import { CommentStatus } from '@src/modules/blog/entities/comment.entity';
+import { PostStatus, CommentStatus } from '@src/types/models/blog.types';
 
 @ArgsType()
 export class PostQueryArgs {
