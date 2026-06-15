@@ -546,6 +546,7 @@ type Mutation {
 
   """将 AI 生成请求加入队列"""
   queueAiGenerate(input: QueueAiGenerateInput!): QueueAiResult!
+  queueCommentEmailNotification(input: QueueCommentEmailNotificationInput!): QueueCommentEmailNotificationResult!
 
   """将邮件投递请求加入队列"""
   queueEmail(input: QueueEmailInput!): QueueEmailResult!
@@ -742,6 +743,22 @@ type QueueAiResult {
   queued: Boolean!
 
   """链路追踪 ID"""
+  traceId: String!
+}
+
+input QueueCommentEmailNotificationInput {
+  authorEmail: String!
+  authorName: String!
+  commentContent: String!
+  commentId: String!
+  dedupKey: String
+  postId: String!
+  postTitle: String!
+  traceId: String
+}
+
+type QueueCommentEmailNotificationResult {
+  jobId: String!
   traceId: String!
 }
 

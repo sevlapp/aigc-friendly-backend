@@ -25,6 +25,7 @@ import {
 } from '@src/usecases/blog/link.usecases';
 import { UpdateConfigUsecase } from '@src/usecases/blog/config.usecase';
 import { GetPostByIdUsecase } from '@src/usecases/blog/get-post.usecase';
+import { QueueCommentEmailNotificationUsecase } from '@src/usecases/blog/queue-comment-email-notification.usecase';
 import {
   GetPostsUsecase,
   GetPostBySlugUsecase,
@@ -65,6 +66,8 @@ import {
   PostQueryArgs,
   UpdateConfigInput,
 } from './dto/query.input';
+import { QueueCommentEmailNotificationInput } from './dto/queue-comment-email-notification.input';
+import { QueueCommentEmailNotificationResult } from './dto/queue-comment-email-notification.result';
 import {
   mapPostViewToDTO,
   mapTagViewToDTO,
@@ -112,6 +115,7 @@ export class BlogResolver {
     private readonly updateLinkUsecase: UpdateLinkUsecase,
     private readonly deleteLinkUsecase: DeleteLinkUsecase,
     private readonly updateConfigUsecase: UpdateConfigUsecase,
+    private readonly queueCommentEmailNotificationUsecase: QueueCommentEmailNotificationUsecase,
   ) {}
 
   @Query(() => PostDTO, { nullable: true })
@@ -308,6 +312,18 @@ export class BlogResolver {
   @Mutation(() => Boolean)
   async deleteLink(@Args('id') id: number): Promise<boolean> {
     return this.deleteLinkUsecase.execute(id);
+  }
+
+  @Mutation(() => QueueCommentEmailNotificationResult)
+  @ValidateInput()
+  async queueCommentEmailNotification(
+    @Args('input') input: QueueCommentEmailNotificationInput,
+  ): Promise<QueueCommentEmailNotificationResult> {
+    const result = await this.queueCommentEmailNotificationUsecase.execute(input);
+    return {
+      jobId: result.jobId,
+      traceId: result.traceId,
+    };
   }
 
   @Mutation(() => ConfigDTO, { nullable: true })

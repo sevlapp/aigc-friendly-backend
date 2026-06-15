@@ -3,6 +3,7 @@ export const BULLMQ_QUEUES = {
   EMAIL: 'email',
   AI: 'ai',
   MAGIC_WORKSHOP: 'magic-workshop',
+  BLOG: 'blog',
 } as const;
 
 export type BullMqQueueName = (typeof BULLMQ_QUEUES)[keyof typeof BULLMQ_QUEUES];
@@ -18,6 +19,9 @@ export const BULLMQ_JOBS = {
   MAGIC_WORKSHOP: {
     CRAFT: 'craft',
   },
+  BLOG: {
+    COMMENT_EMAIL_NOTIFICATION: 'comment-email-notification',
+  },
 } as const;
 
 export type BullMqEmailJobName = (typeof BULLMQ_JOBS.EMAIL)[keyof typeof BULLMQ_JOBS.EMAIL];
@@ -29,4 +33,5 @@ export const BULLMQ_QUEUE_JOBS: Readonly<Record<BullMqQueueName, ReadonlyArray<s
   [BULLMQ_QUEUES.EMAIL]: Object.values(BULLMQ_JOBS.EMAIL),
   [BULLMQ_QUEUES.AI]: Object.values(BULLMQ_JOBS.AI),
   [BULLMQ_QUEUES.MAGIC_WORKSHOP]: Object.values(BULLMQ_JOBS.MAGIC_WORKSHOP),
+  [BULLMQ_QUEUES.BLOG]: Object.values(BULLMQ_JOBS.BLOG),
 };

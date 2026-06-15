@@ -19,6 +19,7 @@ import { CreateTagUsecase, UpdateTagUsecase, DeleteTagUsecase } from './tag.usec
 import { CreateLinkUsecase, UpdateLinkUsecase, DeleteLinkUsecase } from './link.usecases';
 import { UpdateConfigUsecase } from './config.usecase';
 import { GetPostByIdUsecase } from './get-post.usecase';
+import { QueueCommentEmailNotificationUsecase } from './queue-comment-email-notification.usecase';
 import {
   GetPostsUsecase,
   GetPostBySlugUsecase,
@@ -60,6 +61,7 @@ import {
     UpdateConfigUsecase,
     DeleteCommentUsecase,
     GetPostByIdUsecase,
+    QueueCommentEmailNotificationUsecase,
     GetPostsUsecase,
     GetPostBySlugUsecase,
     GetStickyPostsUsecase,
@@ -97,6 +99,7 @@ import {
     UpdateConfigUsecase,
     DeleteCommentUsecase,
     GetPostByIdUsecase,
+    QueueCommentEmailNotificationUsecase,
     GetPostsUsecase,
     GetPostBySlugUsecase,
     GetStickyPostsUsecase,

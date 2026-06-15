@@ -10,6 +10,7 @@ import { LinkEntity } from './entities/link.entity';
 import { ConfigEntity } from './entities/config.entity';
 import { BlogService } from './services/blog.service';
 import { BlogQueryService } from './queries/blog.query.service';
+import { BlogQueueModule } from './blog-queue/blog-queue.module';
 
 @Module({
   imports: [
@@ -21,8 +22,9 @@ import { BlogQueryService } from './queries/blog.query.service';
       LinkEntity,
       ConfigEntity,
     ]),
+    BlogQueueModule,
   ],
   providers: [BlogService, BlogQueryService],
-  exports: [BlogService, BlogQueryService],
+  exports: [BlogService, BlogQueryService, BlogQueueModule],
 })
 export class BlogModule {}

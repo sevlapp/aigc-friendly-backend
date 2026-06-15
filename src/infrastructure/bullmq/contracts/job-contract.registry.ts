@@ -1,6 +1,7 @@
 // src/infrastructure/bullmq/contracts/job-contract.registry.ts
 import { BULLMQ_JOBS, BULLMQ_QUEUES, type BullMqQueueName } from '../bullmq.constants';
 import { AI_JOB_CONTRACT } from './ai-queue.runtime';
+import { BLOG_JOB_CONTRACT } from './blog-queue.runtime';
 import { EMAIL_JOB_CONTRACT } from './email-queue.runtime';
 import { MAGIC_WORKSHOP_JOB_CONTRACT } from './magic-workshop-queue.runtime';
 
@@ -10,6 +11,7 @@ type QueueJobContractMap = {
   readonly [BULLMQ_QUEUES.EMAIL]: typeof EMAIL_JOB_CONTRACT;
   readonly [BULLMQ_QUEUES.AI]: typeof AI_JOB_CONTRACT;
   readonly [BULLMQ_QUEUES.MAGIC_WORKSHOP]: typeof MAGIC_WORKSHOP_JOB_CONTRACT;
+  readonly [BULLMQ_QUEUES.BLOG]: typeof BLOG_JOB_CONTRACT;
 };
 
 export type BullMqJobName<Q extends BullMqQueueName> = keyof QueueJobContractMap[Q] & string;
@@ -42,6 +44,10 @@ export const BULLMQ_JOB_PAYLOAD_VALIDATORS = {
   [BULLMQ_QUEUES.MAGIC_WORKSHOP]: {
     [BULLMQ_JOBS.MAGIC_WORKSHOP.CRAFT]:
       MAGIC_WORKSHOP_JOB_CONTRACT[BULLMQ_JOBS.MAGIC_WORKSHOP.CRAFT].payloadValidator,
+  },
+  [BULLMQ_QUEUES.BLOG]: {
+    [BULLMQ_JOBS.BLOG.COMMENT_EMAIL_NOTIFICATION]:
+      BLOG_JOB_CONTRACT[BULLMQ_JOBS.BLOG.COMMENT_EMAIL_NOTIFICATION].payloadValidator,
   },
 } as const satisfies {
   readonly [Q in BullMqQueueName]: {
