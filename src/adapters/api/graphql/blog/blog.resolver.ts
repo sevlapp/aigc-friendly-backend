@@ -8,6 +8,7 @@ import { DeletePostUsecase } from '@src/usecases/blog/delete-post.usecase';
 import { CreateCommentUsecase } from '@src/usecases/blog/create-comment.usecase';
 import { UpdateCommentUsecase } from '@src/usecases/blog/update-comment.usecase';
 import { ApproveCommentUsecase } from '@src/usecases/blog/approve-comment.usecase';
+import { RejectCommentUsecase } from '@src/usecases/blog/reject-comment.usecase';
 import {
   CreateCategoryUsecase,
   UpdateCategoryUsecase,
@@ -105,6 +106,7 @@ export class BlogResolver {
     private readonly createCommentUsecase: CreateCommentUsecase,
     private readonly updateCommentUsecase: UpdateCommentUsecase,
     private readonly approveCommentUsecase: ApproveCommentUsecase,
+    private readonly rejectCommentUsecase: RejectCommentUsecase,
     private readonly createCategoryUsecase: CreateCategoryUsecase,
     private readonly updateCategoryUsecase: UpdateCategoryUsecase,
     private readonly deleteCategoryUsecase: DeleteCategoryUsecase,
@@ -253,8 +255,13 @@ export class BlogResolver {
   }
 
   @Mutation(() => Boolean)
-  async approveComment(@Args('id') id: number): Promise<boolean> {
+  async approveComment(@Args('id', { type: () => Int }) id: number): Promise<boolean> {
     return this.approveCommentUsecase.execute(id);
+  }
+
+  @Mutation(() => Boolean)
+  async rejectComment(@Args('id', { type: () => Int }) id: number): Promise<boolean> {
+    return this.rejectCommentUsecase.execute(id);
   }
 
   @Mutation(() => CategoryDTO, { nullable: true })
@@ -310,7 +317,7 @@ export class BlogResolver {
   }
 
   @Mutation(() => Boolean)
-  async deleteLink(@Args('id') id: number): Promise<boolean> {
+  async deleteLink(@Args('id', { type: () => Int }) id: number): Promise<boolean> {
     return this.deleteLinkUsecase.execute(id);
   }
 

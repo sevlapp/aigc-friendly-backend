@@ -155,12 +155,12 @@ export class BlogAdminResolver {
   }
 
   @Mutation(() => Boolean)
-  async adminApproveComment(@Args('id') id: number): Promise<boolean> {
+  async adminApproveComment(@Args('id', { type: () => Int }) id: number): Promise<boolean> {
     return this.approveCommentUsecase.execute(id);
   }
 
   @Mutation(() => Boolean)
-  async adminRejectComment(@Args('id') id: number): Promise<boolean> {
+  async adminRejectComment(@Args('id', { type: () => Int }) id: number): Promise<boolean> {
     return this.rejectCommentUsecase.execute(id);
   }
 

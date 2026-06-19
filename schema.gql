@@ -136,7 +136,7 @@ type CommentDTO {
   authorName: String!
   content: String!
   createdAt: DateTime!
-  id: Float!
+  id: Int!
   likeCount: Float!
   parentId: Float
   postId: Float!
@@ -424,7 +424,7 @@ type LinkDTO {
   avatar: String
   createdAt: DateTime!
   description: String
-  id: Float!
+  id: Int!
   isActive: Boolean!
   name: String!
   sortOrder: Float!
@@ -496,7 +496,7 @@ enum MagicItemType {
 }
 
 type Mutation {
-  adminApproveComment(id: Float!): Boolean!
+  adminApproveComment(id: Int!): Boolean!
   adminCreateCategory(input: CreateCategoryInput!): CategoryDTO
   adminCreateLink(input: CreateLinkInput!): LinkDTO
   adminCreatePost(input: CreatePostInput!): PostDTO
@@ -506,14 +506,14 @@ type Mutation {
   adminDeleteLink(id: Float!): Boolean!
   adminDeletePost(id: Int!): Boolean!
   adminDeleteTag(id: Float!): Boolean!
-  adminRejectComment(id: Float!): Boolean!
+  adminRejectComment(id: Int!): Boolean!
   adminUpdateCategory(input: UpdateCategoryInput!): CategoryDTO
   adminUpdateComment(input: UpdateCommentInput!): CommentDTO
   adminUpdateConfig(input: UpdateConfigInput!): ConfigDTO
   adminUpdateLink(input: UpdateLinkInput!): LinkDTO
   adminUpdatePost(input: UpdatePostInput!): PostDTO
   adminUpdateTag(input: UpdateTagInput!): TagDTO
-  approveComment(id: Float!): Boolean!
+  approveComment(id: Int!): Boolean!
 
   """绑定第三方账户"""
   bindThirdParty(input: BindThirdPartyInput!): ThirdPartyAuthDTO!
@@ -530,7 +530,7 @@ type Mutation {
   """创建验证记录"""
   createVerificationRecord(input: CreateVerificationRecordInput!): CreateVerificationRecordResult!
   deleteCategory(id: Float!): Boolean!
-  deleteLink(id: Float!): Boolean!
+  deleteLink(id: Int!): Boolean!
   deletePost(id: Int!): Boolean!
   deleteTag(id: Float!): Boolean!
 
@@ -553,6 +553,7 @@ type Mutation {
 
   """用户注册"""
   register(input: RegisterInput!): RegisterResult!
+  rejectComment(id: Int!): Boolean!
   resetPassword(input: ResetPasswordInput!): ResetPasswordResult!
 
   """撤销验证记录"""

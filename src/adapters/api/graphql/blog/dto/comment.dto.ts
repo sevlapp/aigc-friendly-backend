@@ -1,11 +1,11 @@
 // src/adapters/api/graphql/blog/dto/comment.dto.ts
 
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { PostDTO } from './post.dto';
 
 @ObjectType()
 export class CommentDTO {
-  @Field(() => Number)
+  @Field(() => Int)
   id!: number;
 
   @Field(() => Number)
@@ -44,7 +44,7 @@ export class CommentDTO {
 
 @ObjectType()
 export class LinkDTO {
-  @Field(() => Number)
+  @Field(() => Int)
   id!: number;
 
   @Field(() => String)
