@@ -20,12 +20,25 @@ export interface GetPostsInput {
   options: PostQueryOptions;
 }
 
+export interface GetPostByIdInput {
+  id: number;
+}
+
 export interface GetPostCommentsInput {
   postId: number;
 }
 
 export interface GetCommentsInput {
   options: CommentQueryOptions;
+}
+
+@Injectable()
+export class GetPostByIdUsecase {
+  constructor(private readonly blogQueryService: BlogQueryService) {}
+
+  async execute(input: GetPostByIdInput): Promise<PostView | null> {
+    return this.blogQueryService.getPostById(input.id);
+  }
 }
 
 @Injectable()

@@ -1,6 +1,6 @@
 // src/usecases/blog/get-post.usecase.spec.ts
 
-import { GetPostByIdUsecase } from './get-post.usecase';
+import { GetPostByIdUsecase } from './post-queries.usecase';
 import { PostStatus, PostVisibility } from '@src/modules/blog/entities/post.entity';
 
 const mockBlogQueryService = {

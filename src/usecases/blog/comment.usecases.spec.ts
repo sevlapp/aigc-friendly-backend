@@ -18,6 +18,7 @@ const mockBlogService = {
 
 const mockBlogQueryService = {
   getComments: jest.fn(),
+  getCommentById: jest.fn(),
 };
 
 const mockTransactionRunner = {
@@ -53,7 +54,7 @@ describe('Comment Use Cases', () => {
           updatedAt: new Date(),
         };
         mockBlogService.createComment.mockResolvedValue(mockComment);
-        mockBlogQueryService.getComments.mockResolvedValue([mockComment]);
+        mockBlogQueryService.getCommentById.mockResolvedValue(mockComment);
 
         const result = await usecase.execute(baseInput);
 
@@ -79,7 +80,7 @@ describe('Comment Use Cases', () => {
           updatedAt: new Date(),
         };
         mockBlogService.createComment.mockResolvedValue(mockComment);
-        mockBlogQueryService.getComments.mockResolvedValue([mockComment]);
+        mockBlogQueryService.getCommentById.mockResolvedValue(mockComment);
 
         const result = await usecase.execute(inputWithEmail);
 
@@ -101,7 +102,7 @@ describe('Comment Use Cases', () => {
           updatedAt: new Date(),
         };
         mockBlogService.createComment.mockResolvedValue(mockComment);
-        mockBlogQueryService.getComments.mockResolvedValue([mockComment]);
+        mockBlogQueryService.getCommentById.mockResolvedValue(mockComment);
 
         const result = await usecase.execute(inputWithParent);
 
@@ -123,7 +124,7 @@ describe('Comment Use Cases', () => {
           updatedAt: new Date(),
         };
         mockBlogService.createComment.mockResolvedValue(mockComment);
-        mockBlogQueryService.getComments.mockResolvedValue([mockComment]);
+        mockBlogQueryService.getCommentById.mockResolvedValue(mockComment);
 
         const result = await usecase.execute(inputWithXss);
 
@@ -162,7 +163,7 @@ describe('Comment Use Cases', () => {
           updatedAt: new Date(),
         };
         mockBlogService.updateComment.mockResolvedValue(mockComment);
-        mockBlogQueryService.getComments.mockResolvedValue([mockComment]);
+        mockBlogQueryService.getCommentById.mockResolvedValue(mockComment);
 
         const result = await usecase.execute(baseInput);
 

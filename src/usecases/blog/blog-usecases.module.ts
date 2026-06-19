@@ -18,9 +18,9 @@ import {
 import { CreateTagUsecase, UpdateTagUsecase, DeleteTagUsecase } from './tag.usecases';
 import { CreateLinkUsecase, UpdateLinkUsecase, DeleteLinkUsecase } from './link.usecases';
 import { UpdateConfigUsecase } from './config.usecase';
-import { GetPostByIdUsecase } from './get-post.usecase';
 import { QueueCommentEmailNotificationUsecase } from './queue-comment-email-notification.usecase';
 import {
+  GetPostByIdUsecase,
   GetPostsUsecase,
   GetPostBySlugUsecase,
   GetStickyPostsUsecase,

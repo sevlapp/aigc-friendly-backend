@@ -25,7 +25,7 @@ import {
   DeleteLinkUsecase,
 } from '@src/usecases/blog/link.usecases';
 import { UpdateConfigUsecase } from '@src/usecases/blog/config.usecase';
-import { GetPostByIdUsecase } from '@src/usecases/blog/get-post.usecase';
+import { GetPostByIdUsecase } from '@src/usecases/blog/post-queries.usecase';
 import { QueueCommentEmailNotificationUsecase } from '@src/usecases/blog/queue-comment-email-notification.usecase';
 import {
   GetPostsUsecase,
