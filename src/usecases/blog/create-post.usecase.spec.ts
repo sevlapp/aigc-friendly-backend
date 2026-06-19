@@ -2,10 +2,14 @@
 
 import { CreatePostUsecase } from './create-post.usecase';
 import { PostEntity, PostStatus, PostVisibility } from '@src/modules/blog/entities/post.entity';
-import type { CreatePostInput } from '@src/modules/blog/blog.types';
+import type { CreatePostInput, PostView } from '@src/modules/blog/blog.types';
 
 const mockBlogService = {
   createPost: jest.fn(),
+};
+
+const mockBlogQueryService = {
+  getPostById: jest.fn(),
 };
 
 const mockTransactionRunner = {
@@ -17,7 +21,7 @@ describe('CreatePostUsecase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    usecase = new CreatePostUsecase(mockTransactionRunner, mockBlogService as any);
+    usecase = new CreatePostUsecase(mockTransactionRunner, mockBlogService as any, mockBlogQueryService as any);
   });
 
   describe('execute', () => {
@@ -30,7 +34,7 @@ describe('CreatePostUsecase', () => {
       isSticky: false,
     };
 
-    const mockPostEntity: Partial<PostEntity> = {
+    const mockPostView: PostView = {
       id: 1,
       title: 'Test Post',
       slug: 'test-post',
@@ -41,16 +45,18 @@ describe('CreatePostUsecase', () => {
       visibility: PostVisibility.PUBLIC,
       viewCount: 0,
       likeCount: 0,
-      isSticky: 0,
+      isSticky: false,
       categoryId: undefined,
       createdAt: new Date(),
       updatedAt: new Date(),
       publishedAt: undefined,
       tags: [],
+      commentCount: 0,
     };
 
     it('成功创建文章并返回文章视图', async () => {
-      mockBlogService.createPost.mockResolvedValue(mockPostEntity);
+      mockBlogService.createPost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue(mockPostView);
 
       const result = await usecase.execute(baseInput);
 
@@ -67,6 +73,7 @@ describe('CreatePostUsecase', () => {
         }),
         expect.anything(),
       );
+      expect(mockBlogQueryService.getPostById).toHaveBeenCalledWith(1);
     });
 
     it('创建草稿文章', async () => {
@@ -75,8 +82,9 @@ describe('CreatePostUsecase', () => {
         status: PostStatus.DRAFT,
       };
 
-      mockBlogService.createPost.mockResolvedValue({
-        ...mockPostEntity,
+      mockBlogService.createPost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue({
+        ...mockPostView,
         status: PostStatus.DRAFT,
       });
 
@@ -92,8 +100,9 @@ describe('CreatePostUsecase', () => {
       };
 
       const publishedDate = new Date();
-      mockBlogService.createPost.mockResolvedValue({
-        ...mockPostEntity,
+      mockBlogService.createPost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue({
+        ...mockPostView,
         status: PostStatus.PUBLISHED,
         publishedAt: publishedDate,
       });
@@ -110,8 +119,9 @@ describe('CreatePostUsecase', () => {
         categoryId: 1,
       };
 
-      mockBlogService.createPost.mockResolvedValue({
-        ...mockPostEntity,
+      mockBlogService.createPost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue({
+        ...mockPostView,
         categoryId: 1,
       });
 
@@ -126,7 +136,8 @@ describe('CreatePostUsecase', () => {
         tagIds: [1, 2, 3],
       };
 
-      mockBlogService.createPost.mockResolvedValue(mockPostEntity);
+      mockBlogService.createPost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue(mockPostView);
 
       await usecase.execute(inputWithTags);
 
@@ -144,9 +155,10 @@ describe('CreatePostUsecase', () => {
         isSticky: true,
       };
 
-      mockBlogService.createPost.mockResolvedValue({
-        ...mockPostEntity,
-        isSticky: 1,
+      mockBlogService.createPost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue({
+        ...mockPostView,
+        isSticky: true,
       });
 
       const result = await usecase.execute(inputWithSticky);

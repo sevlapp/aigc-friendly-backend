@@ -7,6 +7,10 @@ const mockBlogService = {
   updatePost: jest.fn(),
 };
 
+const mockBlogQueryService = {
+  getPostById: jest.fn(),
+};
+
 const mockTransactionRunner = {
   run: jest.fn((callback: (ctx: any) => Promise<any>) => callback({})),
 };
@@ -16,10 +20,10 @@ describe('Post Status Transition', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    usecase = new UpdatePostUsecase(mockTransactionRunner, mockBlogService as any);
+    usecase = new UpdatePostUsecase(mockTransactionRunner, mockBlogService as any, mockBlogQueryService as any);
   });
 
-  const basePostEntity: Partial<PostEntity> = {
+  const basePostView = {
     id: 1,
     title: 'Test Post',
     slug: 'test-post',
@@ -30,19 +34,21 @@ describe('Post Status Transition', () => {
     visibility: PostVisibility.PUBLIC,
     viewCount: 0,
     likeCount: 0,
-    isSticky: 0,
+    isSticky: false,
     categoryId: undefined,
     createdAt: new Date(),
     updatedAt: new Date(),
     publishedAt: undefined,
     tags: [],
+    commentCount: 0,
   };
 
   describe('状态流转: DRAFT -> PUBLISHED', () => {
     it('草稿文章发布时应设置 publishedAt', async () => {
       const publishDate = new Date();
-      mockBlogService.updatePost.mockResolvedValue({
-        ...basePostEntity,
+      mockBlogService.updatePost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue({
+        ...basePostView,
         status: PostStatus.PUBLISHED,
         publishedAt: publishDate,
       });
@@ -60,8 +66,9 @@ describe('Post Status Transition', () => {
 
   describe('状态流转: PUBLISHED -> DRAFT', () => {
     it('已发布文章转为草稿', async () => {
-      mockBlogService.updatePost.mockResolvedValue({
-        ...basePostEntity,
+      mockBlogService.updatePost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue({
+        ...basePostView,
         status: PostStatus.DRAFT,
         publishedAt: undefined,
       });
@@ -74,8 +81,9 @@ describe('Post Status Transition', () => {
 
   describe('状态流转: PUBLISHED -> ARCHIVED', () => {
     it('已发布文章归档', async () => {
-      mockBlogService.updatePost.mockResolvedValue({
-        ...basePostEntity,
+      mockBlogService.updatePost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue({
+        ...basePostView,
         status: PostStatus.ARCHIVED,
       });
 
@@ -88,8 +96,9 @@ describe('Post Status Transition', () => {
   describe('状态流转: ARCHIVED -> PUBLISHED', () => {
     it('归档文章重新发布', async () => {
       const publishDate = new Date();
-      mockBlogService.updatePost.mockResolvedValue({
-        ...basePostEntity,
+      mockBlogService.updatePost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue({
+        ...basePostView,
         status: PostStatus.PUBLISHED,
         publishedAt: publishDate,
       });
@@ -103,8 +112,9 @@ describe('Post Status Transition', () => {
 
   describe('可见性切换', () => {
     it('公开文章转为私密', async () => {
-      mockBlogService.updatePost.mockResolvedValue({
-        ...basePostEntity,
+      mockBlogService.updatePost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue({
+        ...basePostView,
         visibility: PostVisibility.PRIVATE,
       });
 
@@ -114,8 +124,9 @@ describe('Post Status Transition', () => {
     });
 
     it('私密文章转为公开', async () => {
-      mockBlogService.updatePost.mockResolvedValue({
-        ...basePostEntity,
+      mockBlogService.updatePost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue({
+        ...basePostView,
         visibility: PostVisibility.PUBLIC,
       });
 
@@ -125,8 +136,9 @@ describe('Post Status Transition', () => {
     });
 
     it('设置为保护状态', async () => {
-      mockBlogService.updatePost.mockResolvedValue({
-        ...basePostEntity,
+      mockBlogService.updatePost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue({
+        ...basePostView,
         visibility: PostVisibility.PROTECTED,
       });
 

@@ -8,6 +8,10 @@ const mockBlogService = {
   updatePost: jest.fn(),
 };
 
+const mockBlogQueryService = {
+  getPostById: jest.fn(),
+};
+
 const mockTransactionRunner = {
   run: jest.fn((callback: (ctx: any) => Promise<any>) => callback({})),
 };
@@ -17,7 +21,7 @@ describe('UpdatePostUsecase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    usecase = new UpdatePostUsecase(mockTransactionRunner, mockBlogService as any);
+    usecase = new UpdatePostUsecase(mockTransactionRunner, mockBlogService as any, mockBlogQueryService as any);
   });
 
   describe('execute', () => {
@@ -28,7 +32,7 @@ describe('UpdatePostUsecase', () => {
       content: 'Updated content',
     };
 
-    const mockPostEntity: Partial<PostEntity> = {
+    const mockPostView = {
       id: 1,
       title: 'Updated Post',
       slug: 'updated-post',
@@ -39,16 +43,18 @@ describe('UpdatePostUsecase', () => {
       visibility: PostVisibility.PUBLIC,
       viewCount: 0,
       likeCount: 0,
-      isSticky: 0,
+      isSticky: false,
       categoryId: undefined,
       createdAt: new Date(),
       updatedAt: new Date(),
       publishedAt: undefined,
       tags: [],
+      commentCount: 0,
     };
 
     it('成功更新文章并返回文章视图', async () => {
-      mockBlogService.updatePost.mockResolvedValue(mockPostEntity);
+      mockBlogService.updatePost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue(mockPostView);
 
       const result = await usecase.execute(baseInput);
 
@@ -64,6 +70,7 @@ describe('UpdatePostUsecase', () => {
         }),
         expect.anything(),
       );
+      expect(mockBlogQueryService.getPostById).toHaveBeenCalledWith(1);
     });
 
     it('更新文章状态为发布时应自动设置 publishedAt', async () => {
@@ -73,8 +80,9 @@ describe('UpdatePostUsecase', () => {
       };
 
       const publishedDate = new Date();
-      mockBlogService.updatePost.mockResolvedValue({
-        ...mockPostEntity,
+      mockBlogService.updatePost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue({
+        ...mockPostView,
         status: PostStatus.PUBLISHED,
         publishedAt: publishedDate,
       });
@@ -91,8 +99,9 @@ describe('UpdatePostUsecase', () => {
         status: PostStatus.DRAFT,
       };
 
-      mockBlogService.updatePost.mockResolvedValue({
-        ...mockPostEntity,
+      mockBlogService.updatePost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue({
+        ...mockPostView,
         status: PostStatus.DRAFT,
       });
 
@@ -107,7 +116,8 @@ describe('UpdatePostUsecase', () => {
         tagIds: [1, 2, 3],
       };
 
-      mockBlogService.updatePost.mockResolvedValue(mockPostEntity);
+      mockBlogService.updatePost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue(mockPostView);
 
       await usecase.execute(inputWithTags);
 
@@ -126,8 +136,9 @@ describe('UpdatePostUsecase', () => {
         categoryId: 2,
       };
 
-      mockBlogService.updatePost.mockResolvedValue({
-        ...mockPostEntity,
+      mockBlogService.updatePost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue({
+        ...mockPostView,
         categoryId: 2,
       });
 
@@ -142,9 +153,10 @@ describe('UpdatePostUsecase', () => {
         isSticky: true,
       };
 
-      mockBlogService.updatePost.mockResolvedValue({
-        ...mockPostEntity,
-        isSticky: 1,
+      mockBlogService.updatePost.mockResolvedValue({ id: 1 });
+      mockBlogQueryService.getPostById.mockResolvedValue({
+        ...mockPostView,
+        isSticky: true,
       });
 
       const result = await usecase.execute(inputWithSticky);
