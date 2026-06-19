@@ -27,7 +27,7 @@ describe('Link Use Cases', () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
-      usecase = new CreateLinkUsecase(mockTransactionRunner, mockBlogService as any, mockBlogQueryService as any);
+      usecase = new CreateLinkUsecase(mockTransactionRunner, mockBlogService as any);
     });
 
     describe('execute', () => {
@@ -41,18 +41,21 @@ describe('Link Use Cases', () => {
       it('should create a link successfully', async () => {
         const mockResult = {
           id: 1,
-          ...baseInput,
+          name: 'GitHub',
+          url: 'https://github.com',
+          sortOrder: 1,
+          isActive: 1,
           createdAt: new Date(),
           updatedAt: new Date(),
         };
         mockBlogService.createLink.mockResolvedValue(mockResult);
-        mockBlogQueryService.getLinks.mockResolvedValue([mockResult]);
 
         const result = await usecase.execute(baseInput);
 
         expect(result?.id).toBe(1);
         expect(result?.name).toBe('GitHub');
         expect(result?.url).toBe('https://github.com');
+        expect(result?.isActive).toBe(true);
         expect(mockBlogService.createLink).toHaveBeenCalled();
       });
 
@@ -65,12 +68,16 @@ describe('Link Use Cases', () => {
 
         const mockResult = {
           id: 1,
-          ...inputWithExtras,
+          name: 'GitHub',
+          url: 'https://github.com',
+          description: 'Code hosting platform',
+          avatar: 'https://github.com/favicon.ico',
+          sortOrder: 1,
+          isActive: 1,
           createdAt: new Date(),
           updatedAt: new Date(),
         };
         mockBlogService.createLink.mockResolvedValue(mockResult);
-        mockBlogQueryService.getLinks.mockResolvedValue([mockResult]);
 
         const result = await usecase.execute(inputWithExtras);
 
@@ -91,7 +98,7 @@ describe('Link Use Cases', () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
-      usecase = new UpdateLinkUsecase(mockTransactionRunner, mockBlogService as any, mockBlogQueryService as any);
+      usecase = new UpdateLinkUsecase(mockTransactionRunner, mockBlogService as any);
     });
 
     describe('execute', () => {
@@ -107,18 +114,18 @@ describe('Link Use Cases', () => {
           name: 'Updated Link',
           url: 'https://updated-link.com',
           sortOrder: 1,
-          isActive: true,
+          isActive: 1,
           createdAt: new Date(),
           updatedAt: new Date(),
         };
         mockBlogService.updateLink.mockResolvedValue(mockUpdated);
-        mockBlogQueryService.getLinks.mockResolvedValue([mockUpdated]);
 
         const result = await usecase.execute(baseInput);
 
         expect(result?.id).toBe(1);
         expect(result?.name).toBe('Updated Link');
         expect(result?.url).toBe('https://updated-link.com');
+        expect(result?.isActive).toBe(true);
         expect(mockBlogService.updateLink).toHaveBeenCalled();
       });
 
@@ -142,12 +149,11 @@ describe('Link Use Cases', () => {
           name: 'GitHub',
           url: 'https://github.com',
           sortOrder: 5,
-          isActive: false,
+          isActive: 0,
           createdAt: new Date(),
           updatedAt: new Date(),
         };
         mockBlogService.updateLink.mockResolvedValue(mockUpdated);
-        mockBlogQueryService.getLinks.mockResolvedValue([mockUpdated]);
 
         const result = await usecase.execute(inputWithStatus);
 
