@@ -60,6 +60,21 @@ export class BlogQueryService {
     return mapPostEntityToView(post, commentCount);
   }
 
+  async getPostByIdAdmin(id: number): Promise<PostView | null> {
+    const post = await this.postRepository.findOne({
+      where: { id },
+      relations: { tags: true },
+    });
+
+    if (!post) return null;
+
+    const commentCount = await this.commentRepository.count({
+      where: { postId: id, status: CommentStatus.APPROVED },
+    });
+
+    return mapPostEntityToView(post, commentCount);
+  }
+
   async getPostBySlug(slug: string): Promise<PostView | null> {
     const post = await this.postRepository.findOne({
       where: { slug, status: PostStatus.PUBLISHED, visibility: PostVisibility.PUBLIC },
@@ -232,6 +247,12 @@ export class BlogQueryService {
 
     const comments = await query.orderBy('comment.createdAt', 'DESC').getMany();
     return comments.map((c) => mapCommentEntityToView(c));
+  }
+
+  async getCommentById(id: number): Promise<CommentView | null> {
+    const comment = await this.commentRepository.findOne({ where: { id } });
+    if (!comment) return null;
+    return mapCommentEntityToView(comment);
   }
 
   async getPostComments(postId: number): Promise<CommentView[]> {

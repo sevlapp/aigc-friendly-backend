@@ -21,12 +21,7 @@ export class CreateCommentUsecase {
   async execute(input: CreateCommentInput): Promise<CommentView | null> {
     return this.transactionRunner.run(async (transactionContext) => {
       const comment = await this.blogService.createComment(input, transactionContext);
-      const comments = await this.blogQueryService.getComments({
-        page: 1,
-        pageSize: 1,
-        postId: input.postId,
-      });
-      return comments.find((c: { id: number }) => c.id === comment.id) || null;
+      return this.blogQueryService.getCommentById(comment.id);
     });
   }
 }

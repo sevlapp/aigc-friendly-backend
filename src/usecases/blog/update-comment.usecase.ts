@@ -22,8 +22,7 @@ export class UpdateCommentUsecase {
     return this.transactionRunner.run(async (transactionContext) => {
       const updated = await this.blogService.updateComment(input, transactionContext);
       if (!updated) return null;
-      const comments = await this.blogQueryService.getComments({ page: 1, pageSize: 1 });
-      return comments.find((c: { id: number }) => c.id === input.id) || null;
+      return this.blogQueryService.getCommentById(input.id);
     });
   }
 }
