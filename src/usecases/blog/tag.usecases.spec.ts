@@ -9,6 +9,10 @@ const mockBlogService = {
   deleteTag: jest.fn(),
 };
 
+const mockBlogQueryService = {
+  getTagBySlug: jest.fn(),
+};
+
 const mockTransactionRunner = {
   run: jest.fn((callback: (ctx: any) => Promise<any>) => callback({})),
 };
@@ -19,7 +23,7 @@ describe('Tag Use Cases', () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
-      usecase = new CreateTagUsecase(mockTransactionRunner, mockBlogService as any);
+      usecase = new CreateTagUsecase(mockTransactionRunner, mockBlogService as any, mockBlogQueryService as any);
     });
 
     describe('execute', () => {
@@ -37,6 +41,7 @@ describe('Tag Use Cases', () => {
           postCount: 0,
         };
         mockBlogService.createTag.mockResolvedValue(mockResult);
+        mockBlogQueryService.getTagBySlug.mockResolvedValue(mockResult);
 
         const result = await usecase.execute(baseInput);
 
@@ -52,13 +57,15 @@ describe('Tag Use Cases', () => {
           description: 'Test description',
         };
 
-        mockBlogService.createTag.mockResolvedValue({
+        const mockResult = {
           id: 1,
           ...inputWithDescription,
           createdAt: new Date(),
           updatedAt: new Date(),
           postCount: 0,
-        });
+        };
+        mockBlogService.createTag.mockResolvedValue(mockResult);
+        mockBlogQueryService.getTagBySlug.mockResolvedValue(mockResult);
 
         const result = await usecase.execute(inputWithDescription);
 
@@ -78,7 +85,7 @@ describe('Tag Use Cases', () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
-      usecase = new UpdateTagUsecase(mockTransactionRunner, mockBlogService as any);
+      usecase = new UpdateTagUsecase(mockTransactionRunner, mockBlogService as any, mockBlogQueryService as any);
     });
 
     describe('execute', () => {
@@ -89,14 +96,16 @@ describe('Tag Use Cases', () => {
       };
 
       it('should update a tag successfully', async () => {
-        const mockResult = {
+        const mockUpdated = {
           id: 1,
-          ...baseInput,
+          name: 'Updated Tag',
+          slug: 'updated-tag',
           createdAt: new Date(),
           updatedAt: new Date(),
           postCount: 0,
         };
-        mockBlogService.updateTag.mockResolvedValue(mockResult);
+        mockBlogService.updateTag.mockResolvedValue(mockUpdated);
+        mockBlogQueryService.getTagBySlug.mockResolvedValue(mockUpdated);
 
         const result = await usecase.execute(baseInput);
 
@@ -111,25 +120,35 @@ describe('Tag Use Cases', () => {
           description: 'New description',
         };
 
-        mockBlogService.updateTag.mockResolvedValue({
+        const mockUpdated = {
           id: 1,
-          name: 'Tag',
-          slug: 'tag',
+          name: 'Test Tag',
+          slug: 'test-tag',
           description: 'New description',
           createdAt: new Date(),
           updatedAt: new Date(),
           postCount: 0,
-        });
+        };
+        mockBlogService.updateTag.mockResolvedValue(mockUpdated);
+        mockBlogQueryService.getTagBySlug.mockResolvedValue(mockUpdated);
 
         const result = await usecase.execute(inputWithDescription);
 
         expect(result?.description).toBe('New description');
       });
 
-      it('should throw error when update fails', async () => {
-        mockBlogService.updateTag.mockRejectedValue(new Error('Tag not found'));
+      it('should return null when tag does not exist', async () => {
+        mockBlogService.updateTag.mockResolvedValue(null);
 
-        await expect(usecase.execute(baseInput)).rejects.toThrow('Tag not found');
+        const result = await usecase.execute({ id: 999, name: 'Not Found' });
+
+        expect(result).toBeNull();
+      });
+
+      it('should throw error when update fails', async () => {
+        mockBlogService.updateTag.mockRejectedValue(new Error('Database error'));
+
+        await expect(usecase.execute(baseInput)).rejects.toThrow('Database error');
       });
     });
   });
@@ -149,7 +168,7 @@ describe('Tag Use Cases', () => {
         const result = await usecase.execute(1);
 
         expect(result).toBe(true);
-        expect(mockBlogService.deleteTag).toHaveBeenCalledWith(1, expect.anything());
+        expect(mockBlogService.deleteTag).toHaveBeenCalledWith(1);
       });
 
       it('should return false when tag does not exist', async () => {

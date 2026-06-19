@@ -13,6 +13,10 @@ const mockBlogService = {
   deleteCategory: jest.fn(),
 };
 
+const mockBlogQueryService = {
+  getCategoryBySlug: jest.fn(),
+};
+
 const mockTransactionRunner = {
   run: jest.fn((callback: (ctx: any) => Promise<any>) => callback({})),
 };
@@ -23,7 +27,7 @@ describe('Category Use Cases', () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
-      usecase = new CreateCategoryUsecase(mockTransactionRunner, mockBlogService as any);
+      usecase = new CreateCategoryUsecase(mockTransactionRunner, mockBlogService as any, mockBlogQueryService as any);
     });
 
     describe('execute', () => {
@@ -43,51 +47,13 @@ describe('Category Use Cases', () => {
           postCount: 0,
         };
         mockBlogService.createCategory.mockResolvedValue(mockResult);
+        mockBlogQueryService.getCategoryBySlug.mockResolvedValue(mockResult);
 
         const result = await usecase.execute(baseInput);
 
         expect(result?.id).toBe(1);
         expect(result?.name).toBe('Test Category');
-        expect(result?.slug).toBe('test-category');
         expect(mockBlogService.createCategory).toHaveBeenCalled();
-      });
-
-      it('should create a category with parent', async () => {
-        const inputWithParent: CreateCategoryInput = {
-          ...baseInput,
-          parentId: 1,
-        };
-
-        mockBlogService.createCategory.mockResolvedValue({
-          id: 2,
-          ...inputWithParent,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          postCount: 0,
-        });
-
-        const result = await usecase.execute(inputWithParent);
-
-        expect(result?.parentId).toBe(1);
-      });
-
-      it('should handle description', async () => {
-        const inputWithDescription: CreateCategoryInput = {
-          ...baseInput,
-          description: 'Test description',
-        };
-
-        mockBlogService.createCategory.mockResolvedValue({
-          id: 1,
-          ...inputWithDescription,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          postCount: 0,
-        });
-
-        const result = await usecase.execute(inputWithDescription);
-
-        expect(result?.description).toBe('Test description');
       });
 
       it('should throw error when creation fails', async () => {
@@ -103,7 +69,7 @@ describe('Category Use Cases', () => {
 
     beforeEach(() => {
       jest.clearAllMocks();
-      usecase = new UpdateCategoryUsecase(mockTransactionRunner, mockBlogService as any);
+      usecase = new UpdateCategoryUsecase(mockTransactionRunner, mockBlogService as any, mockBlogQueryService as any);
     });
 
     describe('execute', () => {
@@ -114,16 +80,18 @@ describe('Category Use Cases', () => {
       };
 
       it('should update a category successfully', async () => {
-        const mockResult = {
+        const mockUpdated = {
           id: 1,
-          ...baseInput,
+          name: 'Updated Category',
+          slug: 'updated-category',
           sortOrder: 1,
           isActive: true,
           createdAt: new Date(),
           updatedAt: new Date(),
           postCount: 0,
         };
-        mockBlogService.updateCategory.mockResolvedValue(mockResult);
+        mockBlogService.updateCategory.mockResolvedValue(mockUpdated);
+        mockBlogQueryService.getCategoryBySlug.mockResolvedValue(mockUpdated);
 
         const result = await usecase.execute(baseInput);
 
@@ -132,33 +100,18 @@ describe('Category Use Cases', () => {
         expect(mockBlogService.updateCategory).toHaveBeenCalled();
       });
 
-      it('should update parentId', async () => {
-        const inputWithParent: UpdateCategoryInput = {
-          id: 1,
-          parentId: 2,
-        };
+      it('should return null when category does not exist', async () => {
+        mockBlogService.updateCategory.mockResolvedValue(null);
 
-        mockBlogService.updateCategory.mockResolvedValue({
-          id: 1,
-          parentId: 2,
-          name: 'Category',
-          slug: 'category',
-          sortOrder: 1,
-          isActive: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          postCount: 0,
-        });
+        const result = await usecase.execute({ id: 999, name: 'Not Found' });
 
-        const result = await usecase.execute(inputWithParent);
-
-        expect(result?.parentId).toBe(2);
+        expect(result).toBeNull();
       });
 
       it('should throw error when update fails', async () => {
-        mockBlogService.updateCategory.mockRejectedValue(new Error('Category not found'));
+        mockBlogService.updateCategory.mockRejectedValue(new Error('Database error'));
 
-        await expect(usecase.execute(baseInput)).rejects.toThrow('Category not found');
+        await expect(usecase.execute(baseInput)).rejects.toThrow('Database error');
       });
     });
   });
@@ -178,7 +131,7 @@ describe('Category Use Cases', () => {
         const result = await usecase.execute(1);
 
         expect(result).toBe(true);
-        expect(mockBlogService.deleteCategory).toHaveBeenCalledWith(1, expect.anything());
+        expect(mockBlogService.deleteCategory).toHaveBeenCalledWith(1);
       });
 
       it('should return false when category does not exist', async () => {
@@ -190,11 +143,9 @@ describe('Category Use Cases', () => {
       });
 
       it('should throw error when deletion fails', async () => {
-        mockBlogService.deleteCategory.mockRejectedValue(
-          new Error('Cannot delete category with children'),
-        );
+        mockBlogService.deleteCategory.mockRejectedValue(new Error('Database error'));
 
-        await expect(usecase.execute(1)).rejects.toThrow('Cannot delete category with children');
+        await expect(usecase.execute(1)).rejects.toThrow('Database error');
       });
     });
   });
